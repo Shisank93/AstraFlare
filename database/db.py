@@ -1,6 +1,6 @@
 """
 AstraFlare Database Connection & Execution Manager.
-Provides PostgreSQL + PostGIS connectivity with safe SQLite fallback for sandboxed/isolated environments.
+Provides PostgreSQL + PostGIS connectivity with safe shared SQLite fallback for sandboxed/isolated environments.
 """
 import sqlite3
 import logging
@@ -10,6 +10,8 @@ from backend.config import settings
 logger = logging.getLogger("astraflare.db")
 
 class DatabaseManager:
+    _shared_sqlite_conn: Optional[sqlite3.Connection] = None
+
     def __init__(self, db_url: Optional[str] = None):
         self.db_url = db_url or settings.DATABASE_URL
         self.is_postgres = self.db_url.startswith("postgresql")
@@ -17,7 +19,7 @@ class DatabaseManager:
         self._sqlite_conn = None
 
     def connect(self):
-        """Establish connection to PostgreSQL or fallback SQLite."""
+        """Establish connection to PostgreSQL or shared fallback SQLite."""
         if self.is_postgres:
             try:
                 import psycopg2
@@ -30,10 +32,15 @@ class DatabaseManager:
                 logger.warning(f"PostgreSQL connection failed ({e}). Falling back to SQLite database engine.")
                 self.is_postgres = False
 
-        # SQLite Fallback Engine
-        self._sqlite_conn = sqlite3.connect(":memory:", check_same_thread=False)
-        self._sqlite_conn.row_factory = sqlite3.Row
-        self._init_sqlite_schema()
+        # Shared SQLite Fallback Engine
+        if DatabaseManager._shared_sqlite_conn is None:
+            DatabaseManager._shared_sqlite_conn = sqlite3.connect(":memory:", check_same_thread=False)
+            DatabaseManager._shared_sqlite_conn.row_factory = sqlite3.Row
+            self._sqlite_conn = DatabaseManager._shared_sqlite_conn
+            self._init_sqlite_schema()
+        else:
+            self._sqlite_conn = DatabaseManager._shared_sqlite_conn
+
         logger.info("Connected to in-memory SQLite fallback engine.")
         return True
 
@@ -170,7 +177,5 @@ class DatabaseManager:
     def close(self):
         if self._pg_conn:
             self._pg_conn.close()
-        if self._sqlite_conn:
-            self._sqlite_conn.close()
 
 db_manager = DatabaseManager()
