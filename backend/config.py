@@ -4,8 +4,12 @@ AstraFlare Environment & System Configuration Module.
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Locate root .env file regardless of current working directory
+_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_ENV_FILE = os.path.join(_ROOT_DIR, ".env")
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(extra="ignore", env_file=".env")
+    model_config = SettingsConfigDict(extra="ignore", env_file=_ENV_FILE)
 
     # System Environment
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
@@ -27,8 +31,6 @@ class Settings(BaseSettings):
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     # Operational Thresholds
-    # Note: HUMAN_REVIEW_THRESHOLD is an initial operational threshold, not a scientifically validated threshold.
-    # It governs the model abstention gate (when max confidence < threshold).
     HUMAN_REVIEW_THRESHOLD: float = float(os.getenv("HUMAN_REVIEW_THRESHOLD", "0.65"))
     RISK_HIGH_THRESHOLD: float = float(os.getenv("RISK_HIGH_THRESHOLD", "0.75"))
 

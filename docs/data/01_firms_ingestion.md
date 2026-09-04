@@ -1,46 +1,53 @@
 # NASA FIRMS Data Ingestion Specification
 
 **Project:** AstraFlare  
-**Document:** NASA FIRMS API Integration, Normalization & Idempotent Ingestion  
+**Document:** NASA FIRMS API Contract, Secret Redaction, Normalization & Idempotent Ingestion  
 
 ---
 
-## 1. NASA FIRMS API Details
+## 1. Verified NASA FIRMS API Contract Details
 
-- **API Endpoint:** `https://firms.modaps.eosdis.nasa.gov/api/country/csv/{MAP_KEY}/{source}/{country}/{days}`
-- **Supported Sources:**
-  - `VIIRS_SNPP_NRT` (VIIRS S-NPP Near Real-Time, 375m spatial resolution)
-  - `VIIRS_NOAA20_NRT` (VIIRS NOAA-20 Near Real-Time, 375m spatial resolution)
-  - `MODIS_NRT` (MODIS Terra/Aqua Near Real-Time, 1km spatial resolution)
-- **Authentication:** `MAP_KEY` query parameter / URL path token obtained from `https://firms.modaps.eosdis.nasa.gov/api/map_key/`.
-- **Response Format:** CSV string stream.
-- **Key CSV Schema Fields:**
-  - `latitude`: Geographic latitude (WGS84)
-  - `longitude`: Geographic longitude (WGS84)
-  - `bright_ti4` / `brightness`: Brightness temperature (Kelvin)
-  - `scan`, `track`: Pixel dimensions
-  - `acq_date`: Acquisition date (`YYYY-MM-DD`)
-  - `acq_time`: Acquisition UTC time (`HHMM`)
-  - `satellite`: Satellite indicator (`N`=NOAA-20, `S`=S-NPP, `T`=Terra, `A`=Aqua)
-  - `instrument`: Sensing instrument (`VIIRS` / `MODIS`)
-  - `confidence`: Detection confidence (`l`=low, `n`=nominal, `h`=high or percentage 0-100)
-  - `frp`: Fire Radiative Power (Megawatts)
-  - `daynight`: `D`=Day, `N`=Night
+- **Base Endpoint:** `https://firms.modaps.eosdis.nasa.gov/api`
+- **Authentication:** `MAP_KEY` 32-character transaction token issued via email from `https://firms.modaps.eosdis.nasa.gov/api/map_key/`.
+- **Secret Redaction Policy:** The `MAP_KEY` parameter is treated as a sensitive secret. Ingestion services, loggers, and exception outputs must redact the key (e.g. `[REDACTED_KEY]`) and never log authenticated URLs.
 
 ---
 
-## 2. Idempotent Ingestion & Fingerprinting
+## 2. API Endpoints Reference
 
-To prevent duplicate record creation during repeated polling:
-1. **Observation Fingerprint:**
-   $$\text{fingerprint} = \text{sha256}(\text{satellite} + "|" + \text{acq\_date} + "|" + \text{acq\_time} + "|" + \text{round}(\text{lat}, 4) + "|" + \text{round}(\text{lon}, 4))$$
-2. **Database Ingestion Strategy:**
-   `INSERT INTO hotspots (...) VALUES (...) ON CONFLICT (id) DO NOTHING;`
+### 2.1 Area Query Endpoint
+- **URL Structure:** `https://firms.modaps.eosdis.nasa.gov/api/area/csv/{MAP_KEY}/{source}/{extent}/{days}`
+- **Extent Format:** `west,south,east,north` (Bounding box coordinates in WGS84, e.g., `70,20,75,25` for Western India).
+- **Days:** Integer `1` to `10`.
+
+### 2.2 Country Query Endpoint
+- **URL Structure:** `https://firms.modaps.eosdis.nasa.gov/api/country/csv/{MAP_KEY}/{source}/{country}/{days}`
+- **Country Code:** 3-letter ISO code (e.g., `IND` for India).
+
+### 2.3 Data Availability Endpoint
+- **URL Structure:** `https://firms.modaps.eosdis.nasa.gov/api/data_availability/csv/{MAP_KEY}/{source}`
+- **Returns:** CSV list of dates with available satellite observations.
 
 ---
 
-## 3. Data Governance Tags
+## 3. Supported Sensor Identifiers
 
-- `REAL`: Observations ingested directly from official NASA FIRMS API.
-- `MOCK`: Generated fallback observations when mock ingestion mode is explicitly requested.
-- `SYNTHETIC_DEMO`: Workaround scenario demonstration records.
+1. `VIIRS_SNPP_NRT`: VIIRS Suomi-NPP (375m spatial resolution, Near Real-Time)
+2. `VIIRS_NOAA20_NRT`: VIIRS NOAA-20 (375m spatial resolution, Near Real-Time)
+3. `VIIRS_NOAA21_NRT`: VIIRS NOAA-21 (375m spatial resolution, Near Real-Time)
+4. `MODIS_NRT`: MODIS Terra & Aqua (1km spatial resolution, Near Real-Time)
+
+---
+
+## 4. Idempotent PostGIS Persistence
+
+- **Fingerprint Calculation:**
+  $$\text{id} = \text{"firms\_"} + \text{sha256}(\text{satellite} + "|" + \text{acq\_date} + "|" + \text{acq\_time} + "|" + \text{round}(\text{lat}, 4) + "|" + \text{round}(\text{lon}, 4))[:16]$$
+- **Idempotency Rule:** `INSERT INTO hotspots (...) VALUES (...) ON CONFLICT (id) DO NOTHING;`
+
+---
+
+## 5. Error & Gateway Diagnostics
+
+- **HTTP 403 Forbidden ("Request not allowed by policy"):** Occurs when `MAP_KEY` is invalid, unconfirmed, mistyped, or rejected by NASA API gateway policy.
+- **HTTP 400 Bad Request:** Occurs when parameter syntax (extent bounding box format or country code) is invalid.

@@ -1,6 +1,7 @@
 """
 AstraFlare NASA FIRMS Data Ingestion Service.
 Fetches, normalizes, validates, and idempotently persists active satellite thermal anomalies.
+Includes secret redaction to ensure MAP_KEY credentials are never logged or exposed.
 """
 import os
 import sys
@@ -23,36 +24,110 @@ logger = logging.getLogger("astraflare.firms")
 
 class FIRMSIngestionClient:
     def __init__(self, map_key: Optional[str] = None):
-        self.map_key = map_key or settings.NASA_FIRMS_MAP_KEY
-        self.base_url = "https://firms.modaps.eosdis.nasa.gov/api/country/csv"
+        self.map_key = map_key if map_key is not None else settings.NASA_FIRMS_MAP_KEY
+        self.base_url = "https://firms.modaps.eosdis.nasa.gov/api"
 
-    def fetch_firms_csv(
-        self, country: str = "IND", source: str = "VIIRS_SNPP_NRT", days: int = 1
+    def redact_key(self, text: str) -> str:
+        """Sanitizes text by replacing actual MAP_KEY values with [REDACTED_KEY]."""
+        if self.map_key and len(self.map_key) > 5:
+            return text.replace(self.map_key, "[REDACTED_KEY]")
+        return text
+
+    def validate_credentials(self, source: str = "VIIRS_SNPP_NRT") -> Tuple[bool, str]:
+        """
+        Tests whether configured MAP_KEY is accepted by NASA FIRMS API policy without exposing the key.
+        Returns (is_valid, status_message).
+        """
+        if not self.map_key or self.map_key == "YOUR_NASA_FIRMS_MAP_KEY_HERE":
+            return False, "MAP_KEY is missing or set to default placeholder in .env."
+
+        url = f"{self.base_url}/country/csv/{self.map_key}/{source}/IND/1"
+        try:
+            with httpx.Client(timeout=10.0) as client:
+                resp = client.get(url)
+                if resp.status_code == 200:
+                    return True, "VALID"
+                elif resp.status_code in (400, 403):
+                    body_clean = self.redact_key(resp.text[:150])
+                    return False, f"INVALID (NASA FIRMS Policy Rejected Key - HTTP {resp.status_code}: {body_clean})"
+                else:
+                    return False, f"HTTP {resp.status_code} ({self.redact_key(resp.text[:100])})"
+        except Exception as e:
+            return False, f"Network Error: {self.redact_key(str(e))}"
+
+    def check_data_availability(self, source: str = "VIIRS_SNPP_NRT") -> Tuple[bool, str]:
+        """Queries NASA FIRMS data availability endpoint for configured sensor."""
+        if not self.map_key or self.map_key == "YOUR_NASA_FIRMS_MAP_KEY_HERE":
+            return False, "MAP_KEY missing."
+
+        url = f"{self.base_url}/data_availability/csv/{self.map_key}/{source}"
+        try:
+            with httpx.Client(timeout=10.0) as client:
+                resp = client.get(url)
+                if resp.status_code == 200:
+                    lines = resp.text.splitlines()
+                    count = len(lines) - 1 if len(lines) > 1 else 0
+                    return True, f"PASS ({count} dates available)"
+                else:
+                    return False, f"HTTP {resp.status_code}"
+        except Exception as e:
+            return False, f"Error: {self.redact_key(str(e))}"
+
+    def fetch_firms_area_csv(
+        self, extent: str = "70,20,75,25", source: str = "VIIRS_SNPP_NRT", days: int = 1
     ) -> str:
-        """Fetches raw CSV string from NASA FIRMS API with retry logic."""
-        if not self.map_key:
-            raise ValueError(
-                "NASA_FIRMS_MAP_KEY is missing from environment. "
-                "Obtain a key at https://firms.modaps.eosdis.nasa.gov/api/map_key/ and set in .env."
-            )
+        """Fetches raw CSV from NASA FIRMS Area endpoint for small bounding box extent (W,S,E,N)."""
+        if not self.map_key or self.map_key == "YOUR_NASA_FIRMS_MAP_KEY_HERE":
+            raise ValueError("NASA_FIRMS_MAP_KEY is missing from environment.")
 
-        url = f"{self.base_url}/{self.map_key}/{source}/{country}/{days}"
-        logger.info(f"Polling NASA FIRMS API endpoint: {url.replace(self.map_key, 'MAP_KEY_REDACTED')}")
+        url = f"{self.base_url}/area/csv/{self.map_key}/{source}/{extent}/{days}"
+        redacted_url = self.redact_key(url)
+        logger.info(f"Polling NASA FIRMS Area API endpoint: {redacted_url}")
 
         retries = 3
-        backoff = 2.0
         for attempt in range(1, retries + 1):
             try:
                 with httpx.Client(timeout=15.0) as client:
                     resp = client.get(url)
-                    resp.raise_for_status()
+                    if resp.status_code != 200:
+                        clean_err = self.redact_key(resp.text[:200])
+                        raise RuntimeError(f"HTTP {resp.status_code}: {clean_err}")
                     return resp.text
             except Exception as e:
-                logger.warning(f"FIRMS API request failed (attempt {attempt}/{retries}): {e}")
+                clean_msg = self.redact_key(str(e))
+                logger.warning(f"FIRMS Area API request failed (attempt {attempt}/{retries}): {clean_msg}")
                 if attempt == retries:
-                    raise RuntimeError(f"NASA FIRMS API request failed after {retries} retries: {e}")
+                    raise RuntimeError(f"NASA FIRMS Area API failed after {retries} retries: {clean_msg}")
 
-        raise RuntimeError("NASA FIRMS API fetch failed.")
+        raise RuntimeError("NASA FIRMS Area API fetch failed.")
+
+    def fetch_firms_country_csv(
+        self, country: str = "IND", source: str = "VIIRS_SNPP_NRT", days: int = 1
+    ) -> str:
+        """Fetches raw CSV from NASA FIRMS Country endpoint."""
+        if not self.map_key or self.map_key == "YOUR_NASA_FIRMS_MAP_KEY_HERE":
+            raise ValueError("NASA_FIRMS_MAP_KEY is missing from environment.")
+
+        url = f"{self.base_url}/country/csv/{self.map_key}/{source}/{country}/{days}"
+        redacted_url = self.redact_key(url)
+        logger.info(f"Polling NASA FIRMS Country API endpoint: {redacted_url}")
+
+        retries = 3
+        for attempt in range(1, retries + 1):
+            try:
+                with httpx.Client(timeout=15.0) as client:
+                    resp = client.get(url)
+                    if resp.status_code != 200:
+                        clean_err = self.redact_key(resp.text[:200])
+                        raise RuntimeError(f"HTTP {resp.status_code}: {clean_err}")
+                    return resp.text
+            except Exception as e:
+                clean_msg = self.redact_key(str(e))
+                logger.warning(f"FIRMS Country API request failed (attempt {attempt}/{retries}): {clean_msg}")
+                if attempt == retries:
+                    raise RuntimeError(f"NASA FIRMS Country API failed after {retries} retries: {clean_msg}")
+
+        raise RuntimeError("NASA FIRMS Country API fetch failed.")
 
     @staticmethod
     def generate_hotspot_id(satellite: str, acq_date: str, acq_time: str, lat: float, lon: float) -> str:
@@ -70,7 +145,6 @@ class FIRMSIngestionClient:
             frp = float(row.get("frp", "0.0"))
             brightness = float(row.get("bright_ti4") or row.get("brightness") or "0.0")
 
-            # Validate Coordinates & FRP
             valid_coords, err_c = validate_coordinates(latitude, longitude)
             if not valid_coords:
                 logger.warning(f"Rejected invalid FIRMS coordinate row: {err_c}")
@@ -115,7 +189,7 @@ class FIRMSIngestionClient:
             return None
 
     def ingest_firms_data(
-        self, country: str = "IND", source: str = "VIIRS_SNPP_NRT", days: int = 1, mock_fallback: bool = False
+        self, country: str = "IND", extent: Optional[str] = None, source: str = "VIIRS_SNPP_NRT", days: int = 1, mock_fallback: bool = False
     ) -> Dict[str, Any]:
         """Runs end-to-end FIRMS fetch, validation, normalization, and idempotent PostGIS insertion."""
         db_manager.connect()
@@ -124,10 +198,14 @@ class FIRMSIngestionClient:
         csv_content = None
         if not mock_fallback and self.map_key:
             try:
-                csv_content = self.fetch_firms_csv(country, source, days)
+                if extent:
+                    csv_content = self.fetch_firms_area_csv(extent, source, days)
+                else:
+                    csv_content = self.fetch_firms_country_csv(country, source, days)
             except Exception as e:
-                logger.error(f"Real FIRMS ingestion failed: {e}")
-                raise
+                clean_err = self.redact_key(str(e))
+                logger.error(f"Real FIRMS ingestion failed: {clean_err}")
+                raise RuntimeError(clean_err)
 
         if not csv_content and mock_fallback:
             logger.info("Explicit Mock Fallback requested; generating MOCK FIRMS observations.")
@@ -151,14 +229,13 @@ class FIRMSIngestionClient:
                 rejected += 1
                 continue
 
-            # Idempotent Database Persistence
             if db_manager.is_postgres:
                 query = """
                 INSERT INTO hotspots (id, firms_id, latitude, longitude, geom, acq_timestamp, satellite, instrument, brightness, frp, confidence, daynight, data_source)
                 VALUES (%s, %s, %s, %s, ST_SetSRID(ST_GeomFromText(%s), 4326), %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (id) DO NOTHING;
                 """
-                res = db_manager.execute_query(query, (
+                db_manager.execute_query(query, (
                     record["id"], record["firms_id"], record["latitude"], record["longitude"], record["geom"],
                     record["acq_timestamp"], record["satellite"], record["instrument"], record["brightness"],
                     record["frp"], record["confidence"], record["daynight"], record["data_source"]
@@ -168,7 +245,7 @@ class FIRMSIngestionClient:
                 INSERT OR IGNORE INTO hotspots (id, firms_id, latitude, longitude, geom, acq_timestamp, satellite, instrument, brightness, frp, confidence, daynight, data_source)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """
-                res = db_manager.execute_query(query, (
+                db_manager.execute_query(query, (
                     record["id"], record["firms_id"], record["latitude"], record["longitude"], record["geom"],
                     record["acq_timestamp"], record["satellite"], record["instrument"], record["brightness"],
                     record["frp"], record["confidence"], record["daynight"], record["data_source"]
@@ -186,10 +263,7 @@ class FIRMSIngestionClient:
         }
 
 if __name__ == "__main__":
-    print("Executing FIRMS Ingestion CLI...")
+    print("Executing FIRMS Ingestion CLI (Mock Mode)...")
     client = FIRMSIngestionClient()
-    try:
-        res = client.ingest_firms_data(mock_fallback=True)
-        print(f"Ingestion Result: {res}")
-    except Exception as err:
-        print(f"Ingestion Error: {err}")
+    res = client.ingest_firms_data(mock_fallback=True)
+    print(f"Ingestion Result: {res}")
