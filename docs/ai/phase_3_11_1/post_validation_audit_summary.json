@@ -1,0 +1,405 @@
+{
+  "reconciliation_singleton_vs_quality": {
+    "total_events": 4310499,
+    "singletons_total_obs_cnt_1": 3744320,
+    "singletons_low_q": 3710958,
+    "singletons_not_low_q_medium": 33362,
+    "multi_obs_total": 566179,
+    "multi_obs_low_q": 104066,
+    "total_low_q_in_population": 3815024
+  },
+  "reconciliation_human_review_drivers": {
+    "total_review_true": 3844789,
+    "total_review_false": 465710,
+    "driver_low_quality": 3815024,
+    "driver_ambiguous": 416071,
+    "driver_industrial_anomaly": 0,
+    "raw_driver_sum": 4231095,
+    "overlaps": {
+      "low_q_and_ambiguous": 386309,
+      "low_q_and_ind_anomaly": 0,
+      "ambiguous_and_ind_anomaly": 0,
+      "all_three": 0
+    },
+    "unexplained_review_count": 3
+  },
+  "review_rate_breakdowns": {
+    "by_observation_count": {
+      "SINGLETON": {
+        "total": 3744320,
+        "review_pct": 99.22
+      },
+      "MULTI_OBS": {
+        "total": 566179,
+        "review_pct": 22.89
+      }
+    },
+    "by_quality_status": {
+      "HIGH": {
+        "total": 27,
+        "review_pct": 14.81
+      },
+      "MEDIUM": {
+        "total": 495448,
+        "review_pct": 6.01
+      },
+      "LOW": {
+        "total": 3815024,
+        "review_pct": 100.0
+      },
+      "INSUFFICIENT": {
+        "total": 0,
+        "review_pct": 0.0
+      }
+    },
+    "by_evidence_status": {
+      "INSUFFICIENT_EVIDENCE": {
+        "total": 416071,
+        "review_pct": 100.0
+      },
+      "STRONG_NATURAL_CONTEXT": {
+        "total": 3891162,
+        "review_pct": 88.05
+      },
+      "UNUSUAL_THERMAL_ACTIVITY": {
+        "total": 123,
+        "review_pct": 14.63
+      },
+      "STRONG_INDUSTRIAL_CONTEXT": {
+        "total": 3143,
+        "review_pct": 76.26
+      }
+    },
+    "by_risk_level": {
+      "LOW": {
+        "total": 4276971,
+        "review_pct": 89.55
+      },
+      "MEDIUM": {
+        "total": 33528,
+        "review_pct": 44.44
+      },
+      "HIGH": {
+        "total": 0,
+        "review_pct": 0.0
+      }
+    },
+    "by_investigation_priority": {
+      "LOW": {
+        "total": 4276016,
+        "review_pct": 89.52
+      },
+      "MEDIUM": {
+        "total": 2367,
+        "review_pct": 23.62
+      },
+      "HIGH": {
+        "total": 32116,
+        "review_pct": 50.9
+      },
+      "URGENT": {
+        "total": 0,
+        "review_pct": 0.0
+      }
+    }
+  },
+  "component_contribution_analysis": {
+    "Thermal Intensity": {
+      "mean_contrib": 0.0101,
+      "median_contrib": 0.0056,
+      "P95_contrib": 0.0294,
+      "max_contrib": 0.21,
+      "pct_of_total_risk": 3.9
+    },
+    "Historical Anomaly": {
+      "mean_contrib": 0.125,
+      "median_contrib": 0.125,
+      "P95_contrib": 0.125,
+      "max_contrib": 0.125,
+      "pct_of_total_risk": 48.5
+    },
+    "Industrial Context": {
+      "mean_contrib": 0.0,
+      "median_contrib": 0.0,
+      "P95_contrib": 0.0,
+      "max_contrib": 0.0,
+      "pct_of_total_risk": 0.0
+    },
+    "Recurrence / Persistence": {
+      "mean_contrib": 0.0,
+      "median_contrib": 0.0,
+      "P95_contrib": 0.0,
+      "max_contrib": 0.0,
+      "pct_of_total_risk": 0.0
+    },
+    "Natural Context (Adj)": {
+      "mean_contrib": 0.0,
+      "median_contrib": 0.0,
+      "P95_contrib": 0.0,
+      "max_contrib": 0.0,
+      "pct_of_total_risk": 0.0
+    },
+    "Data Quality": {
+      "mean_contrib": 0.0177,
+      "median_contrib": 0.0161,
+      "P95_contrib": 0.0282,
+      "max_contrib": 0.0407,
+      "pct_of_total_risk": 6.88
+    }
+  },
+  "timing_audit": {
+    "total_execution_time_sec": 167.87,
+    "processing_time_sec": 164.26,
+    "events_per_second": 26241.9
+  },
+  "verified_ext_audit": [
+    {
+      "event_id": "evt_5903_27738_2025-12-03",
+      "overall_risk_score": 0.2677,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5964,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_5903_27739_2025-03-19",
+      "overall_risk_score": 0.2482,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5288,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_5904_27738_2025-03-19",
+      "overall_risk_score": 0.2486,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5253,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_5904_27739_2025-03-19",
+      "overall_risk_score": 0.2511,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5109,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7233_24194_2024-02-20",
+      "overall_risk_score": 0.2562,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5056,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7233_24195_2023-10-04",
+      "overall_risk_score": 0.2606,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.4997,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7234_24194_2024-02-20",
+      "overall_risk_score": 0.2481,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5174,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7235_24194_2025-04-12",
+      "overall_risk_score": 0.264,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5853,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7235_24195_2025-04-12",
+      "overall_risk_score": 0.2774,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5881,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7236_24193_2024-01-28",
+      "overall_risk_score": 0.2623,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5822,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "human_review_required": true
+    }
+  ],
+  "persistent_ref_audit": [
+    {
+      "event_id": "evt_7036_24212_2024-11-26",
+      "overall_risk_score": 0.3099,
+      "industrial_context_score": 0.5594,
+      "persistence_score": 0.2,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7036_24213_2023-01-05",
+      "overall_risk_score": 0.3305,
+      "industrial_context_score": 0.596,
+      "persistence_score": 0.2,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7036_24213_2024-11-16",
+      "overall_risk_score": 0.305,
+      "industrial_context_score": 0.5873,
+      "persistence_score": 0.2,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7036_24213_2025-12-02",
+      "overall_risk_score": 0.2988,
+      "industrial_context_score": 0.5615,
+      "persistence_score": 0.2,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7036_24214_2024-05-11",
+      "overall_risk_score": 0.3079,
+      "industrial_context_score": 0.5878,
+      "persistence_score": 0.2,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7036_24214_2024-10-28",
+      "overall_risk_score": 0.3036,
+      "industrial_context_score": 0.582,
+      "persistence_score": 0.2,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7036_24214_2025-02-10",
+      "overall_risk_score": 0.3029,
+      "industrial_context_score": 0.5769,
+      "persistence_score": 0.2,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7036_24214_2025-11-18",
+      "overall_risk_score": 0.3144,
+      "industrial_context_score": 0.5431,
+      "persistence_score": 0.3,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": false
+    },
+    {
+      "event_id": "evt_7036_24214_2025-12-13",
+      "overall_risk_score": 0.3121,
+      "industrial_context_score": 0.5782,
+      "persistence_score": 0.2,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7036_24215_2023-02-06",
+      "overall_risk_score": 0.303,
+      "industrial_context_score": 0.5293,
+      "persistence_score": 0.4,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": false
+    },
+    {
+      "event_id": "evt_7036_24215_2024-04-29",
+      "overall_risk_score": 0.2982,
+      "industrial_context_score": 0.5335,
+      "persistence_score": 0.3,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": false
+    },
+    {
+      "event_id": "evt_7036_24215_2024-11-20",
+      "overall_risk_score": 0.3063,
+      "industrial_context_score": 0.5402,
+      "persistence_score": 0.4,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": false
+    },
+    {
+      "event_id": "evt_7036_24215_2024-12-10",
+      "overall_risk_score": 0.2947,
+      "industrial_context_score": 0.5274,
+      "persistence_score": 0.3,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": false
+    },
+    {
+      "event_id": "evt_7036_24215_2025-05-16",
+      "overall_risk_score": 0.3072,
+      "industrial_context_score": 0.5351,
+      "persistence_score": 0.5,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": false
+    },
+    {
+      "event_id": "evt_7036_24215_2025-11-10",
+      "overall_risk_score": 0.2946,
+      "industrial_context_score": 0.5258,
+      "persistence_score": 0.3,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": false
+    },
+    {
+      "event_id": "evt_7037_24212_2024-12-18",
+      "overall_risk_score": 0.3319,
+      "industrial_context_score": 0.6361,
+      "persistence_score": 0.3,
+      "historical_anomaly_score": 0.5,
+      "investigation_priority": "HIGH",
+      "human_review_required": false
+    }
+  ],
+  "wildfire_ref_audit": {
+    "total": 68659,
+    "mean_nat_score": 1.0,
+    "mean_ind_score": 0.0,
+    "mean_risk_score": 0.3629,
+    "review_cnt": 64241,
+    "priorities": {
+      "LOW": 48540,
+      "HIGH": 20084,
+      "MEDIUM": 35
+    }
+  }
+}

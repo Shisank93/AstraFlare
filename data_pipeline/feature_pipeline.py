@@ -24,7 +24,7 @@ class FeaturePipeline:
         self.osm = osm_client
         self.landcover = landcover_engine
 
-    def enrich_hotspot(self, hotspot: Dict[str, Any], mock_fallback: bool = True) -> Dict[str, Any]:
+    def enrich_hotspot(self, hotspot: Dict[str, Any], mock_fallback: bool = True, skip_network: bool = False) -> Dict[str, Any]:
         """
         Enriches a raw or persisted hotspot dictionary with spatial, industrial, historical, and land-cover context.
         Conforms strictly to the AstraFlare Feature Output Contract.
@@ -39,8 +39,9 @@ class FeaturePipeline:
 
         # 1. Industrial Proximity & Site Ingestion Cache Check
         try:
-            # Ensure contextual OSM features exist in local PostGIS cache
-            self.osm.ingest_contextual_osm(lat, lon, radius_m=5000.0, mock_fallback=mock_fallback)
+            # Ensure contextual OSM features exist in local PostGIS cache if network enabled
+            if not skip_network:
+                self.osm.ingest_contextual_osm(lat, lon, radius_m=5000.0, mock_fallback=mock_fallback)
             nearest_site, dist_ind_m = self.gis.get_nearest_industrial_site(lat, lon, max_distance_m=10000.0)
             nearest_name = nearest_site.get("name") if nearest_site else None
         except Exception as e:
@@ -83,9 +84,13 @@ class FeaturePipeline:
         try:
             lc_res = self.landcover.get_land_cover_class(lat, lon)
             land_cover_class = lc_res["class_name"]
+            land_cover_code = lc_res["class_code"]
+            land_cover_category = lc_res["category"]
         except Exception as e:
             logger.warning(f"Land cover sampling error for {hotspot_id}: {e}")
             land_cover_class = "Unknown / Unmapped"
+            land_cover_code = 40
+            land_cover_category = "unknown"
             context_issues.append("LANDCOVER_UNAVAILABLE")
 
         # Determine Data Quality Tag
@@ -103,15 +108,17 @@ class FeaturePipeline:
             "latitude": lat,
             "longitude": lon,
             "frp": frp,
-            "brightness": float(hotspot.get("brightness", 0.0)),
+            "brightness": float(hotspot.get("brightness") or 0.0),
             "confidence": hotspot.get("confidence", "nominal"),
             "satellite": hotspot.get("satellite", "VIIRS"),
             "acq_timestamp": hotspot.get("acq_timestamp"),
             "industrial_distance": dist_ind_m,
+            "industrial_distance_m": dist_ind_m,
             "nearest_industrial_name": nearest_name,
             "industrial_site_count_250m": count_250m,
             "industrial_site_count_500m": count_500m,
             "industrial_site_count_1000m": count_1000m,
+            "industrial_count_1km": count_1000m,
             "historical_count_30d": hist_30d,
             "historical_count_365d": hist_365d,
             "historical_mean_frp": hist_mean,
@@ -120,6 +127,8 @@ class FeaturePipeline:
             "frp_anomaly_score": anomaly_score,
             "frp_anomaly_status": anomaly_status,
             "land_cover_class": land_cover_class,
+            "land_cover_code": land_cover_code,
+            "land_cover_category": land_cover_category,
             "data_source": data_source,
             "data_quality": data_quality
         }

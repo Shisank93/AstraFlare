@@ -50,9 +50,10 @@ class OSMIngestionClient:
         logger.info(f"Querying Overpass API for coordinates ({latitude}, {longitude}) buffer {radius_m}m...")
 
         retries = 3
+        headers = {"User-Agent": "AstraFlare/1.0 (contact@astraflare.org)"}
         for attempt in range(1, retries + 1):
             try:
-                with httpx.Client(timeout=25.0) as client:
+                with httpx.Client(timeout=25.0, headers=headers) as client:
                     resp = client.post(self.overpass_url, data={"data": query_str})
                     resp.raise_for_status()
                     data = resp.json()
@@ -75,7 +76,6 @@ class OSMIngestionClient:
                 osm_id = f"{osm_type}_{elem.get('id')}"
                 tags = elem.get("tags", {})
                 
-                # Determine facility category/type
                 facility_type = (
                     tags.get("industrial") or 
                     tags.get("man_made") or 
@@ -87,7 +87,6 @@ class OSMIngestionClient:
                 
                 name = tags.get("name") or f"Industrial Site ({osm_id})"
 
-                # Geometry Extraction (Center coordinates for Way/Relation, Lat/Lon for Node)
                 lat = elem.get("lat") or elem.get("center", {}).get("lat")
                 lon = elem.get("lon") or elem.get("center", {}).get("lon")
 
@@ -119,13 +118,11 @@ class OSMIngestionClient:
         """
         db_manager.connect()
 
-        # 1. Database Cache Check
         cached_count = self._count_cached_sites(latitude, longitude, radius_m)
         if cached_count > 0:
             logger.info(f"OSM Cache Hit: Found {cached_count} industrial sites in PostGIS cache. Skipping Overpass API network call.")
             return cached_count
 
-        # 2. Fetch from Overpass API
         sites = []
         if not mock_fallback:
             try:
@@ -133,7 +130,6 @@ class OSMIngestionClient:
             except Exception as e:
                 logger.warning(f"Overpass fetch failed: {e}")
 
-        # Fallback mock if requested or offline
         if not sites and mock_fallback:
             logger.info("Generating mock contextual OSM industrial sites.")
             sites = [
@@ -147,13 +143,12 @@ class OSMIngestionClient:
                 }
             ]
 
-        # 3. Persist Normalized Sites into Database
         inserted = 0
         for site in sites:
             if db_manager.is_postgres:
                 query = """
                 INSERT INTO industrial_sites (osm_id, name, facility_type, geom, data_source)
-                VALUES (%s, %s, %s, ST_SetSRID(ST_GeomFromText(%s), 4326), %s)
+                VALUES (%s, %s, %s, %s, %s)
                 ON CONFLICT (osm_id) DO NOTHING;
                 """
                 db_manager.execute_query(query, (site["osm_id"], site["name"], site["facility_type"], site["geom"], site["data_source"]))

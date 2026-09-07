@@ -1,0 +1,1015 @@
+{
+  "dataset": {
+    "total_events": 4310499,
+    "total_observations": 4985160,
+    "obs_per_event_ratio": 1.1565,
+    "date_range": [
+      "2023-01-01T06:55:00Z",
+      "2025-12-31T22:36:00Z"
+    ],
+    "geographic_bounds": {
+      "lat_min": 8.0453,
+      "lat_max": 35.1122,
+      "lon_min": 68.5001,
+      "lon_max": 97.2129
+    }
+  },
+  "performance": {
+    "total_processing_time_sec": 165.44,
+    "events_per_second": 26055.5
+  },
+  "risk_score_stats": {
+    "min": 0.1812,
+    "max": 0.5558,
+    "mean": 0.2577,
+    "median": 0.26,
+    "std": 0.0322,
+    "P5": 0.2119,
+    "P10": 0.2175,
+    "P25": 0.2407,
+    "P50": 0.26,
+    "P75": 0.2719,
+    "P90": 0.2858,
+    "P95": 0.2991,
+    "P99": 0.3696,
+    "P99.9": 0.509
+  },
+  "risk_levels": {
+    "LOW": {
+      "count": 4276971,
+      "pct": 99.22
+    },
+    "MEDIUM": {
+      "count": 33528,
+      "pct": 0.78
+    },
+    "HIGH": {
+      "count": 0,
+      "pct": 0.0
+    }
+  },
+  "priorities": {
+    "LOW": {
+      "count": 4276016,
+      "pct": 99.2
+    },
+    "MEDIUM": {
+      "count": 2367,
+      "pct": 0.05
+    },
+    "HIGH": {
+      "count": 32116,
+      "pct": 0.75
+    },
+    "URGENT": {
+      "count": 0,
+      "pct": 0.0
+    }
+  },
+  "priority_vs_risk": {
+    "LOW": {
+      "LOW": 4273828,
+      "MEDIUM": 2188,
+      "HIGH": 0
+    },
+    "MEDIUM": {
+      "LOW": 0,
+      "MEDIUM": 2367,
+      "HIGH": 0
+    },
+    "HIGH": {
+      "LOW": 3143,
+      "MEDIUM": 28973,
+      "HIGH": 0
+    },
+    "URGENT": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0
+    }
+  },
+  "human_review": {
+    "TRUE": {
+      "count": 3844789,
+      "pct": 89.2
+    },
+    "FALSE": {
+      "count": 465710,
+      "pct": 10.8
+    },
+    "by_risk": {
+      "LOW": 3829890,
+      "MEDIUM": 14899,
+      "HIGH": 0
+    },
+    "by_evidence": {
+      "INSUFFICIENT_EVIDENCE": 416071,
+      "STRONG_NATURAL_CONTEXT": 3426303,
+      "UNUSUAL_THERMAL_ACTIVITY": 18,
+      "STRONG_INDUSTRIAL_CONTEXT": 2397
+    },
+    "by_context": {
+      "AMBIGUOUS": 416071,
+      "NATURAL_FIRE_CONTEXT": 3426321,
+      "INDUSTRIAL_CONTEXT": 2397
+    },
+    "by_quality": {
+      "LOW": 3815024,
+      "MEDIUM": 29761,
+      "HIGH": 4
+    },
+    "top_reasons": {
+      "Insufficient evidence quality requires analyst review.": 416071,
+      "Telemetry quality is LOW; manual analyst verification recommended.": 3428715,
+      "High-intensity thermal anomaly near industrial site (46.0 MW at 696m) with low prior recurrence (0).": 1,
+      "High-intensity thermal anomaly near industrial site (42.6 MW at 600m) with low prior recurrence (0).": 1,
+      "High-intensity thermal anomaly near industrial site (42.3 MW at 793m) with low prior recurrence (0).": 1
+    }
+  },
+  "evidence_statuses": {
+    "INSUFFICIENT_EVIDENCE": {
+      "count": 416071,
+      "pct": 9.65
+    },
+    "STRONG_NATURAL_CONTEXT": {
+      "count": 3891162,
+      "pct": 90.27
+    },
+    "UNUSUAL_THERMAL_ACTIVITY": {
+      "count": 123,
+      "pct": 0.0
+    },
+    "STRONG_INDUSTRIAL_CONTEXT": {
+      "count": 3143,
+      "pct": 0.07
+    }
+  },
+  "likely_contexts": {
+    "AMBIGUOUS": {
+      "count": 416071,
+      "pct": 9.65
+    },
+    "NATURAL_FIRE_CONTEXT": {
+      "count": 3891285,
+      "pct": 90.27
+    },
+    "INDUSTRIAL_CONTEXT": {
+      "count": 3143,
+      "pct": 0.07
+    }
+  },
+  "component_stats": {
+    "thermal": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.0977,
+      "median": 0.0907,
+      "std": 0.0814,
+      "P5": 0.0095,
+      "P10": 0.0173,
+      "P25": 0.0628,
+      "P50": 0.0907,
+      "P75": 0.1183,
+      "P90": 0.1587,
+      "P95": 0.1995,
+      "P99": 0.4265,
+      "P99.9": 0.834
+    },
+    "historical": {
+      "min": 0.5,
+      "max": 0.5,
+      "mean": 0.5,
+      "median": 0.5,
+      "std": 0.0,
+      "P5": 0.5,
+      "P10": 0.5,
+      "P25": 0.5,
+      "P50": 0.5,
+      "P75": 0.5,
+      "P90": 0.5,
+      "P95": 0.5,
+      "P99": 0.5,
+      "P99.9": 0.5
+    },
+    "industrial": {
+      "min": 0.0,
+      "max": 0.76,
+      "mean": 0.0015,
+      "median": 0.0,
+      "std": 0.0283,
+      "P5": 0.0,
+      "P10": 0.0,
+      "P25": 0.0,
+      "P50": 0.0,
+      "P75": 0.0,
+      "P90": 0.0,
+      "P95": 0.0,
+      "P99": 0.0,
+      "P99.9": 0.5238
+    },
+    "natural": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.8538,
+      "median": 1.0,
+      "std": 0.2033,
+      "P5": 0.4,
+      "P10": 0.7,
+      "P25": 0.7,
+      "P50": 1.0,
+      "P75": 1.0,
+      "P90": 1.0,
+      "P95": 1.0,
+      "P99": 1.0,
+      "P99.9": 1.0
+    },
+    "recurrence": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "median": 0.0,
+      "std": 0.0,
+      "P5": 0.0,
+      "P10": 0.0,
+      "P25": 0.0,
+      "P50": 0.0,
+      "P75": 0.0,
+      "P90": 0.0,
+      "P95": 0.0,
+      "P99": 0.0,
+      "P99.9": 0.0
+    },
+    "quality": {
+      "min": 0.3217,
+      "max": 0.814,
+      "mean": 0.3545,
+      "median": 0.3217,
+      "std": 0.0858,
+      "P5": 0.3217,
+      "P10": 0.3217,
+      "P25": 0.3217,
+      "P50": 0.3217,
+      "P75": 0.3217,
+      "P90": 0.5633,
+      "P95": 0.5633,
+      "P99": 0.68,
+      "P99.9": 0.68
+    }
+  },
+  "contribution_stats": [
+    {
+      "component": "Thermal Intensity",
+      "weight": 0.3,
+      "mean_score": 0.0977,
+      "mean_contribution": 0.0293,
+      "P95_contrib": 0.0599,
+      "P99_contrib": 0.1279
+    },
+    {
+      "component": "Historical Anomaly",
+      "weight": 0.25,
+      "mean_score": 0.5,
+      "mean_contribution": 0.125,
+      "P95_contrib": 0.125,
+      "P99_contrib": 0.125
+    },
+    {
+      "component": "Industrial Context",
+      "weight": 0.2,
+      "mean_score": 0.0015,
+      "mean_contribution": 0.0003,
+      "P95_contrib": 0.0,
+      "P99_contrib": 0.0
+    },
+    {
+      "component": "Recurrence / Persistence",
+      "weight": 0.1,
+      "mean_score": 0.0,
+      "mean_contribution": 0.0,
+      "P95_contrib": 0.0,
+      "P99_contrib": 0.0
+    },
+    {
+      "component": "Natural Context (Adj)",
+      "weight": 0.1,
+      "mean_score": 0.8538,
+      "mean_contribution": 0.0854,
+      "P95_contrib": 0.1,
+      "P99_contrib": 0.1
+    },
+    {
+      "component": "Data Quality",
+      "weight": 0.05,
+      "mean_score": 0.3545,
+      "mean_contribution": 0.0177,
+      "P95_contrib": 0.0282,
+      "P99_contrib": 0.034
+    }
+  ],
+  "frp_buckets": {
+    "<10": {
+      "count": 3625346,
+      "pct": 84.11,
+      "mean_risk": 0.2513,
+      "high_risk_pct": 0.0
+    },
+    "10-25": {
+      "count": 518722,
+      "pct": 12.03,
+      "mean_risk": 0.2737,
+      "high_risk_pct": 0.0
+    },
+    "25-50": {
+      "count": 103019,
+      "pct": 2.39,
+      "mean_risk": 0.3096,
+      "high_risk_pct": 0.0
+    },
+    "50-100": {
+      "count": 39202,
+      "pct": 0.91,
+      "mean_risk": 0.3672,
+      "high_risk_pct": 0.0
+    },
+    "100-250": {
+      "count": 19649,
+      "pct": 0.46,
+      "mean_risk": 0.4679,
+      "high_risk_pct": 0.0
+    },
+    "250-500": {
+      "count": 3767,
+      "pct": 0.09,
+      "mean_risk": 0.5031,
+      "high_risk_pct": 0.0
+    },
+    ">500": {
+      "count": 794,
+      "pct": 0.02,
+      "mean_risk": 0.5233,
+      "high_risk_pct": 0.0
+    }
+  },
+  "dist_bands": {
+    "<=250m": {
+      "count": 27,
+      "pct": 0.0,
+      "mean_ind_score": 0.76,
+      "mean_overall_risk": 0.3048,
+      "high_risk_pct": 0.0,
+      "review_pct": 92.59
+    },
+    "250-500m": {
+      "count": 481,
+      "pct": 0.01,
+      "mean_ind_score": 0.6922,
+      "mean_overall_risk": 0.2925,
+      "high_risk_pct": 0.0,
+      "review_pct": 83.16
+    },
+    "500-1000m": {
+      "count": 2632,
+      "pct": 0.06,
+      "mean_ind_score": 0.6062,
+      "mean_overall_risk": 0.2849,
+      "high_risk_pct": 0.0,
+      "review_pct": 74.85
+    },
+    "1-2km": {
+      "count": 8441,
+      "pct": 0.2,
+      "mean_ind_score": 0.5001,
+      "mean_overall_risk": 0.2775,
+      "high_risk_pct": 0.0,
+      "review_pct": 99.99
+    },
+    "2-5km": {
+      "count": 1313,
+      "pct": 0.03,
+      "mean_ind_score": 0.2895,
+      "mean_overall_risk": 0.31,
+      "high_risk_pct": 0.0,
+      "review_pct": 98.1
+    },
+    ">5km": {
+      "count": 4297605,
+      "pct": 99.7,
+      "mean_ind_score": 0.0,
+      "mean_overall_risk": 0.2576,
+      "high_risk_pct": 0.0,
+      "review_pct": 89.18
+    }
+  },
+  "hist_bands": {
+    "NO_HISTORY": {
+      "count": 4310499,
+      "pct": 100.0,
+      "mean_hist_score": 0.5,
+      "mean_overall_risk": 0.2577,
+      "high_risk_pct": 0.0,
+      "review_pct": 89.2
+    },
+    "INSUFFICIENT_DATA": {
+      "count": 0,
+      "pct": 0.0,
+      "mean_hist_score": 0.0,
+      "mean_overall_risk": 0.0,
+      "high_risk_pct": 0.0,
+      "review_pct": 0.0
+    },
+    "Z < 1": {
+      "count": 0,
+      "pct": 0.0,
+      "mean_hist_score": 0.0,
+      "mean_overall_risk": 0.0,
+      "high_risk_pct": 0.0,
+      "review_pct": 0.0
+    },
+    "1 <= Z < 2": {
+      "count": 0,
+      "pct": 0.0,
+      "mean_hist_score": 0.0,
+      "mean_overall_risk": 0.0,
+      "high_risk_pct": 0.0,
+      "review_pct": 0.0
+    },
+    "2 <= Z < 3": {
+      "count": 0,
+      "pct": 0.0,
+      "mean_hist_score": 0.0,
+      "mean_overall_risk": 0.0,
+      "high_risk_pct": 0.0,
+      "review_pct": 0.0
+    },
+    "Z >= 3": {
+      "count": 0,
+      "pct": 0.0,
+      "mean_hist_score": 0.0,
+      "mean_overall_risk": 0.0,
+      "high_risk_pct": 0.0,
+      "review_pct": 0.0
+    }
+  },
+  "land_cover_stats": {
+    "Cropland / Agricultural (40)": {
+      "count": 406641,
+      "pct": 9.43,
+      "mean_risk": 0.215,
+      "mean_nat_score": 0.4,
+      "mean_ind_score": 0.0,
+      "high_risk_pct": 0.0
+    },
+    "Shrubland / Grassland (20/30)": {
+      "count": 1248152,
+      "pct": 28.96,
+      "mean_risk": 0.241,
+      "mean_nat_score": 0.7,
+      "mean_ind_score": 0.0002,
+      "high_risk_pct": 0.0
+    },
+    "Tree Cover / Forest (10)": {
+      "count": 2644125,
+      "pct": 61.34,
+      "mean_risk": 0.2721,
+      "mean_nat_score": 1.0,
+      "mean_ind_score": 0.0001,
+      "high_risk_pct": 0.0
+    },
+    "Built-up / Industrial (50)": {
+      "count": 11581,
+      "pct": 0.27,
+      "mean_risk": 0.2799,
+      "mean_nat_score": 0.0,
+      "mean_ind_score": 0.5328,
+      "high_risk_pct": 0.0
+    }
+  },
+  "case_studies": {
+    "HIGH_RISK_INDUSTRIAL": null,
+    "HIGH_RISK_NATURAL": null,
+    "PERSISTENT_INDUSTRIAL": null,
+    "CONFLICTING_EVIDENCE": null,
+    "LOW_RISK_ROUTINE": null,
+    "HIGH_FRP": [
+      {
+        "event_id": "evt_10172_24760_2023-11-18",
+        "max_frp": 334.0,
+        "mean_frp": 334.0,
+        "std_frp": 0.0,
+        "max_brightness": 379.2,
+        "mean_brightness": 379.2,
+        "observation_count": 1,
+        "duration_hours": 0.0,
+        "confidence_high_ratio": 1.0,
+        "satellite_count": 1,
+        "industrial_distance_m": 917022.3,
+        "industrial_site_count_250m": 0,
+        "industrial_site_count_1km": 0,
+        "industrial_site_count_5km": 0,
+        "previous_detection_count": 0,
+        "historical_mean_frp": null,
+        "historical_max_frp": null,
+        "historical_std_frp": null,
+        "frp_anomaly_z": null,
+        "history_status": null,
+        "worldcover_class": "Cropland / Agricultural (40)",
+        "centroid_lat": 30.5161,
+        "centroid_lon": 74.2788,
+        "event_start": "2023-11-18T09:03:00Z",
+        "event_end": "2023-11-18T09:03:00Z"
+      },
+      {
+        "event_id": "evt_10172_24760_2023-11-18",
+        "overall_risk_score": 0.4786,
+        "risk_level": "MEDIUM",
+        "investigation_priority": "MEDIUM",
+        "industrial_context_score": 0.0,
+        "natural_fire_context_score": 0.4,
+        "thermal_anomaly_score": 0.9584,
+        "historical_anomaly_score": 0.5,
+        "recurrence_score": 0.0,
+        "persistence_score": 0.1,
+        "data_quality_score": 0.5217,
+        "history_status": "NO_PRIOR_HISTORY",
+        "data_quality_status": "MEDIUM",
+        "evidence_status": "UNUSUAL_THERMAL_ACTIVITY",
+        "likely_context": "NATURAL_FIRE_CONTEXT",
+        "human_review_required": false,
+        "human_review_reasons": [],
+        "evidence": [
+          {
+            "type": "THERMAL_ANOMALY",
+            "strength": "VERY_HIGH",
+            "value": "334.00 MW",
+            "reason": "Peak Fire Radiative Power is 334.00 MW (VERY_HIGH intensity).",
+            "input_feature": "max_frp",
+            "input_value": 334.0,
+            "normalization": 1.0,
+            "weight": 0.21,
+            "contribution": 0.21
+          },
+          {
+            "type": "SATELLITE_RADIANCE",
+            "strength": "HIGH",
+            "value": "379.2 K",
+            "reason": "Satellite channel brightness temperature recorded at 379.2 K.",
+            "input_feature": "max_brightness",
+            "input_value": 379.2,
+            "normalization": 0.792,
+            "weight": 0.06,
+            "contribution": 0.0475
+          },
+          {
+            "type": "HISTORICAL_ANOMALY",
+            "strength": "MODERATE",
+            "value": "NO_PRIOR_HISTORY",
+            "reason": "No prior satellite thermal history in cell. Baseline unestablished.",
+            "input_feature": "frp_anomaly_z",
+            "input_value": null,
+            "normalization": 0.5,
+            "weight": 0.25,
+            "contribution": 0.125
+          },
+          {
+            "type": "INDUSTRIAL_PROXIMITY",
+            "strength": "LOW",
+            "value": "917022.3 meters",
+            "reason": "Thermal event centroid is spatially remote from industrial infrastructure (917022.3m > 5000m).",
+            "input_feature": "industrial_distance_m",
+            "input_value": 917022.3,
+            "normalization": 0.0,
+            "weight": 0.14,
+            "contribution": 0.0
+          },
+          {
+            "type": "LAND_COVER",
+            "strength": "MODERATE",
+            "value": "Cropland / Agricultural (40)",
+            "reason": "ESA 10m WorldCover classifies surface as 'Cropland / Agricultural (40)' (agricultural cropland).",
+            "input_feature": "worldcover_class",
+            "input_value": "Cropland / Agricultural (40)",
+            "normalization": 0.4,
+            "weight": 0.1,
+            "contribution": 0.04
+          },
+          {
+            "type": "HISTORICAL_RECURRENCE",
+            "strength": "LOW",
+            "value": "0 prior detections, 0.0h duration",
+            "reason": "Cell exhibits rare historical recurrence (0 prior detections).",
+            "input_feature": "previous_detection_count",
+            "input_value": 0,
+            "normalization": 0.0,
+            "weight": 0.1,
+            "contribution": 0.0
+          },
+          {
+            "type": "DATA_QUALITY",
+            "strength": "MEDIUM",
+            "value": "Score: 0.52 (MEDIUM)",
+            "reason": "Moderate telemetry quality: 1 observation(s), baseline NO_PRIOR_HISTORY.",
+            "input_feature": "observation_count",
+            "input_value": 1,
+            "normalization": 0.5217,
+            "weight": 0.05,
+            "contribution": 0.0261
+          }
+        ],
+        "generated_at": "2026-09-05T08:50:13Z"
+      }
+    ],
+    "HIGH_HISTORICAL_ANOMALY": null,
+    "NO_HISTORY": [
+      {
+        "event_id": "evt_10000_24533_2024-12-24",
+        "max_frp": 3.97,
+        "mean_frp": 3.97,
+        "std_frp": 0.0,
+        "max_brightness": 336.05,
+        "mean_brightness": 336.05,
+        "observation_count": 1,
+        "duration_hours": 0.0,
+        "confidence_high_ratio": 0.0,
+        "satellite_count": 1,
+        "industrial_distance_m": 854795.5,
+        "industrial_site_count_250m": 0,
+        "industrial_site_count_1km": 0,
+        "industrial_site_count_5km": 0,
+        "previous_detection_count": 0,
+        "historical_mean_frp": null,
+        "historical_max_frp": null,
+        "historical_std_frp": null,
+        "frp_anomaly_z": null,
+        "history_status": null,
+        "worldcover_class": "Cropland / Agricultural (40)",
+        "centroid_lat": 30.00115,
+        "centroid_lon": 73.60044,
+        "event_start": "2024-12-24T08:57:00Z",
+        "event_end": "2024-12-24T08:57:00Z"
+      },
+      {
+        "event_id": "evt_10000_24533_2024-12-24",
+        "overall_risk_score": 0.2083,
+        "risk_level": "LOW",
+        "investigation_priority": "LOW",
+        "industrial_context_score": 0.0,
+        "natural_fire_context_score": 0.4,
+        "thermal_anomaly_score": 0.0906,
+        "historical_anomaly_score": 0.5,
+        "recurrence_score": 0.0,
+        "persistence_score": 0.1,
+        "data_quality_score": 0.3217,
+        "history_status": "NO_PRIOR_HISTORY",
+        "data_quality_status": "LOW",
+        "evidence_status": "INSUFFICIENT_EVIDENCE",
+        "likely_context": "AMBIGUOUS",
+        "human_review_required": true,
+        "human_review_reasons": [
+          "Insufficient evidence quality requires analyst review."
+        ],
+        "evidence": [
+          {
+            "type": "THERMAL_ANOMALY",
+            "strength": "LOW",
+            "value": "3.97 MW",
+            "reason": "Peak Fire Radiative Power is 3.97 MW (LOW intensity).",
+            "input_feature": "max_frp",
+            "input_value": 3.97,
+            "normalization": 0.0265,
+            "weight": 0.21,
+            "contribution": 0.0056
+          },
+          {
+            "type": "SATELLITE_RADIANCE",
+            "strength": "MODERATE",
+            "value": "336.1 K",
+            "reason": "Satellite channel brightness temperature recorded at 336.1 K.",
+            "input_feature": "max_brightness",
+            "input_value": 336.05,
+            "normalization": 0.3605,
+            "weight": 0.06,
+            "contribution": 0.0216
+          },
+          {
+            "type": "HISTORICAL_ANOMALY",
+            "strength": "MODERATE",
+            "value": "NO_PRIOR_HISTORY",
+            "reason": "No prior satellite thermal history in cell. Baseline unestablished.",
+            "input_feature": "frp_anomaly_z",
+            "input_value": null,
+            "normalization": 0.5,
+            "weight": 0.25,
+            "contribution": 0.125
+          },
+          {
+            "type": "INDUSTRIAL_PROXIMITY",
+            "strength": "LOW",
+            "value": "854795.5 meters",
+            "reason": "Thermal event centroid is spatially remote from industrial infrastructure (854795.5m > 5000m).",
+            "input_feature": "industrial_distance_m",
+            "input_value": 854795.5,
+            "normalization": 0.0,
+            "weight": 0.14,
+            "contribution": 0.0
+          },
+          {
+            "type": "LAND_COVER",
+            "strength": "MODERATE",
+            "value": "Cropland / Agricultural (40)",
+            "reason": "ESA 10m WorldCover classifies surface as 'Cropland / Agricultural (40)' (agricultural cropland).",
+            "input_feature": "worldcover_class",
+            "input_value": "Cropland / Agricultural (40)",
+            "normalization": 0.4,
+            "weight": 0.1,
+            "contribution": 0.04
+          },
+          {
+            "type": "HISTORICAL_RECURRENCE",
+            "strength": "LOW",
+            "value": "0 prior detections, 0.0h duration",
+            "reason": "Cell exhibits rare historical recurrence (0 prior detections).",
+            "input_feature": "previous_detection_count",
+            "input_value": 0,
+            "normalization": 0.0,
+            "weight": 0.1,
+            "contribution": 0.0
+          },
+          {
+            "type": "DATA_QUALITY",
+            "strength": "LOW",
+            "value": "Score: 0.32 (LOW)",
+            "reason": "Low telemetry quality: singleton observation (1), baseline NO_PRIOR_HISTORY.",
+            "input_feature": "observation_count",
+            "input_value": 1,
+            "normalization": 0.3217,
+            "weight": 0.05,
+            "contribution": 0.0161
+          }
+        ],
+        "generated_at": "2026-09-05T08:50:09Z"
+      }
+    ]
+  },
+  "top_100_summary": {
+    "max_risk": 0.5558,
+    "min_risk_in_top100": 0.5511,
+    "count": 100
+  },
+  "verified_ext_results": [
+    {
+      "event_id": "evt_5903_27738_2025-12-03",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.2677,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5964,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_5903_27739_2025-03-19",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.2482,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5288,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_5904_27738_2025-03-19",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.2486,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5253,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_5904_27739_2025-03-19",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.2511,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5109,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7233_24194_2024-02-20",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.2562,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5056,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7233_24195_2023-10-04",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.2606,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.4997,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7234_24194_2024-02-20",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.2481,
+      "risk_level": "LOW",
+      "investigation_priority": "LOW",
+      "industrial_context_score": 0.5174,
+      "evidence_status": "INSUFFICIENT_EVIDENCE",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7235_24194_2025-04-12",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.264,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5853,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7235_24195_2025-04-12",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.2774,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5881,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "human_review_required": true
+    },
+    {
+      "event_id": "evt_7236_24193_2024-01-28",
+      "label": "LIKELY_INDUSTRIAL_INCIDENT",
+      "overall_risk_score": 0.2623,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5822,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "human_review_required": true
+    }
+  ],
+  "persistent_ref_results": [
+    {
+      "event_id": "evt_7036_24212_2024-11-26",
+      "overall_risk_score": 0.3159,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5894,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24213_2023-01-05",
+      "overall_risk_score": 0.3365,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.626,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24213_2024-11-16",
+      "overall_risk_score": 0.311,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.6173,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24213_2025-12-02",
+      "overall_risk_score": 0.3048,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5915,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24214_2024-05-11",
+      "overall_risk_score": 0.3139,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.6178,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24214_2024-10-28",
+      "overall_risk_score": 0.3096,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.612,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24214_2025-02-10",
+      "overall_risk_score": 0.3089,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.6069,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24214_2025-11-18",
+      "overall_risk_score": 0.3204,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5731,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24214_2025-12-13",
+      "overall_risk_score": 0.3181,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.6082,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24215_2023-02-06",
+      "overall_risk_score": 0.309,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5593,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24215_2024-04-29",
+      "overall_risk_score": 0.3042,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5635,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24215_2024-11-20",
+      "overall_risk_score": 0.3123,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5702,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24215_2024-12-10",
+      "overall_risk_score": 0.3007,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5574,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24215_2025-05-16",
+      "overall_risk_score": 0.3132,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5651,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7036_24215_2025-11-10",
+      "overall_risk_score": 0.3006,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.5558,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    },
+    {
+      "event_id": "evt_7037_24212_2024-12-18",
+      "overall_risk_score": 0.3379,
+      "risk_level": "LOW",
+      "investigation_priority": "HIGH",
+      "industrial_context_score": 0.6661,
+      "evidence_status": "STRONG_INDUSTRIAL_CONTEXT",
+      "likely_context": "INDUSTRIAL_CONTEXT"
+    }
+  ],
+  "wildfire_ref_results": {
+    "total": 68659,
+    "risk_sum": 24913.404399997366,
+    "nat_sum": 68659.0,
+    "ind_sum": 0.0,
+    "high_cnt": 0,
+    "natural_cnt": 68659
+  },
+  "formula_matches": 88
+}

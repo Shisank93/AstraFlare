@@ -70,12 +70,14 @@ def test_parse_negative_frp(firms_client):
     assert norm is None
 
 def test_idempotent_ingestion(firms_client):
+    DatabaseManager().execute_query("DELETE FROM hotspots WHERE data_source = 'MOCK';")
     res1 = firms_client.ingest_firms_data(mock_fallback=True)
     res2 = firms_client.ingest_firms_data(mock_fallback=True)
 
     assert res1["status"] == "SUCCESS"
     assert res2["status"] == "SUCCESS"
     assert res1["inserted"] > 0
+    assert res2["inserted"] == 0
 
 def test_missing_or_placeholder_credential_validation():
     client_empty = FIRMSIngestionClient(map_key="")

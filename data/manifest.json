@@ -1,0 +1,65 @@
+{
+  "datasets": {
+    "DL_FIRE_J1V-C2_799431": {
+      "dataset_id": "DL_FIRE_J1V-C2_799431",
+      "source_name": "NASA_FIRMS_HISTORICAL_ARCHIVE",
+      "file_path": "data/raw/firms_archive/DL_FIRE_J1V-C2_799431/fire_archive_J1V-C2_799431.csv",
+      "file_size_bytes": 146430305,
+      "checksum_sha256": "ab14e9a61a42493e190d9a86d7c984bf74756ff744461bdfe87b89310d8ae3cf",
+      "provenance_status": "SATELLITE_DERIVED_CORROBORATION",
+      "total_records": 1824761,
+      "india_records": 1824761,
+      "date_range": "2023-01-01 to 2025-12-31",
+      "source_url": "https://firms.modaps.eosdis.nasa.gov/download",
+      "license": "NASA Open Data Policy",
+      "dataset_version": "v1.0",
+      "registered_at": "2026-09-05T07:27:19.542230"
+    },
+    "DL_FIRE_J2V-C2_799432": {
+      "dataset_id": "DL_FIRE_J2V-C2_799432",
+      "source_name": "NASA_FIRMS_HISTORICAL_ARCHIVE",
+      "file_path": "data/raw/firms_archive/DL_FIRE_J2V-C2_799432/fire_nrt_J2V-C2_799432.csv",
+      "file_size_bytes": 94473050,
+      "checksum_sha256": "43a83f4ee56cc23af5f1bb64ad95a67c128024c72551b000bb8077a418749e29",
+      "provenance_status": "SATELLITE_DERIVED_CORROBORATION",
+      "total_records": 1134538,
+      "india_records": 1134538,
+      "date_range": "2024-01-17 to 2025-12-31",
+      "source_url": "https://firms.modaps.eosdis.nasa.gov/download",
+      "license": "NASA Open Data Policy",
+      "dataset_version": "v1.0",
+      "registered_at": "2026-09-05T07:27:20.104209"
+    },
+    "DL_FIRE_M-C61_799430": {
+      "dataset_id": "DL_FIRE_M-C61_799430",
+      "source_name": "NASA_FIRMS_HISTORICAL_ARCHIVE",
+      "file_path": "data/raw/firms_archive/DL_FIRE_M-C61_799430/fire_archive_M-C61_799430.csv",
+      "file_size_bytes": 19467775,
+      "checksum_sha256": "d4653d2665940323dce4c4f48cc76d448eaa8034bdda073cc0f7615224d16ab0",
+      "provenance_status": "SATELLITE_DERIVED_CORROBORATION",
+      "total_records": 247440,
+      "india_records": 247440,
+      "date_range": "2023-01-01 to 2025-12-31",
+      "source_url": "https://firms.modaps.eosdis.nasa.gov/download",
+      "license": "NASA Open Data Policy",
+      "dataset_version": "v1.0",
+      "registered_at": "2026-09-05T07:27:20.233482"
+    },
+    "DL_FIRE_SV-C2_799433": {
+      "dataset_id": "DL_FIRE_SV-C2_799433",
+      "source_name": "NASA_FIRMS_HISTORICAL_ARCHIVE",
+      "file_path": "data/raw/firms_archive/DL_FIRE_SV-C2_799433/fire_archive_SV-C2_799433.csv",
+      "file_size_bytes": 142710279,
+      "checksum_sha256": "ed969b40508bde318bc45b7f72042286c5dbd24abc3d0399724be8b22ec751ec",
+      "provenance_status": "SATELLITE_DERIVED_CORROBORATION",
+      "total_records": 1778421,
+      "india_records": 1778421,
+      "date_range": "2023-01-01 to 2025-12-31",
+      "source_url": "https://firms.modaps.eosdis.nasa.gov/download",
+      "license": "NASA Open Data Policy",
+      "dataset_version": "v1.0",
+      "registered_at": "2026-09-05T07:27:21.081362"
+    }
+  },
+  "updated_at": "2026-09-05T07:27:21.081374"
+}

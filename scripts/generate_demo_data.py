@@ -53,7 +53,7 @@ def generate_demo_scenarios():
         if db_manager.is_postgres:
             query = """
             INSERT INTO industrial_sites (osm_id, name, facility_type, geom, data_source)
-            VALUES (%s, %s, %s, ST_SetSRID(ST_GeomFromText(%s), 4326), %s)
+            VALUES (%s, %s, %s, %s, %s)
             ON CONFLICT (osm_id) DO UPDATE SET name = EXCLUDED.name;
             """
             db_manager.execute_query(query, (site["osm_id"], site["name"], site["facility_type"], site["geom"], site["data_source"]))
@@ -218,7 +218,7 @@ def generate_demo_scenarios():
         if db_manager.is_postgres:
             q_hs = """
             INSERT INTO hotspots (id, firms_id, latitude, longitude, geom, acq_timestamp, satellite, instrument, brightness, frp, confidence, daynight, data_source)
-            VALUES (%s, %s, %s, %s, ST_SetSRID(ST_GeomFromText(%s), 4326), %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (id) DO UPDATE SET frp = EXCLUDED.frp;
             """
             db_manager.execute_query(q_hs, (

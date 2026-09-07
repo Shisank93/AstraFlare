@@ -1,0 +1,58 @@
+{
+  "model_version": "v1.0",
+  "feature_columns": [
+    "duration_hours",
+    "observation_count",
+    "centroid_lat",
+    "centroid_lon",
+    "spatial_extent_m",
+    "max_frp",
+    "mean_frp",
+    "std_frp",
+    "max_brightness",
+    "mean_brightness",
+    "confidence_high_ratio",
+    "satellite_count",
+    "industrial_distance_m",
+    "industrial_site_count_250m",
+    "industrial_site_count_1km",
+    "industrial_site_count_5km",
+    "worldcover_class"
+  ],
+  "numerical_features": [
+    "duration_hours",
+    "observation_count",
+    "centroid_lat",
+    "centroid_lon",
+    "spatial_extent_m",
+    "max_frp",
+    "mean_frp",
+    "std_frp",
+    "max_brightness",
+    "mean_brightness",
+    "confidence_high_ratio",
+    "satellite_count",
+    "industrial_distance_m",
+    "industrial_site_count_250m",
+    "industrial_site_count_1km",
+    "industrial_site_count_5km"
+  ],
+  "categorical_features": [
+    "worldcover_class"
+  ],
+  "target_classes": [
+    "LIKELY_INDUSTRIAL_INCIDENT",
+    "PERSISTENT_INDUSTRIAL_HEAT",
+    "NATURAL_WILDLAND_FIRE"
+  ],
+  "class_to_idx": {
+    "LIKELY_INDUSTRIAL_INCIDENT": 0,
+    "PERSISTENT_INDUSTRIAL_HEAT": 1,
+    "NATURAL_WILDLAND_FIRE": 2
+  },
+  "idx_to_class": {
+    "0": "LIKELY_INDUSTRIAL_INCIDENT",
+    "1": "PERSISTENT_INDUSTRIAL_HEAT",
+    "2": "NATURAL_WILDLAND_FIRE"
+  }
+}

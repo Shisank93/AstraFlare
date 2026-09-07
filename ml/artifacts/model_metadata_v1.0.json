@@ -1,0 +1,73 @@
+{
+  "model_version": "v1.0",
+  "model_name": "RandomForestClassifier",
+  "model_status": "RESEARCH BASELINE \u2014 DATA-LIMITED",
+  "training_date": "2026-09-05 17:13:54",
+  "isolation_audit": {
+    "splitter_name": "FacilityGroupSplitter",
+    "train_rows": 54386,
+    "test_rows": 14289,
+    "train_events": 54386,
+    "test_events": 14289,
+    "event_overlap": 0,
+    "facility_overlap": 0,
+    "duplicate_overlap": 0,
+    "temporal_max_train": "2025-12-31T10:27:00Z",
+    "temporal_min_test": "2023-01-05T05:01:00Z",
+    "is_leakage_free": true
+  },
+  "development_metrics": {
+    "status": "AVAILABLE",
+    "accuracy": 1.0,
+    "balanced_accuracy": 1.0,
+    "macro_f1": 0.6667,
+    "weighted_f1": 1.0,
+    "weighted_precision": 1.0,
+    "weighted_recall": 1.0,
+    "per_class_f1": {
+      "LIKELY_INDUSTRIAL_INCIDENT": 0.0,
+      "PERSISTENT_INDUSTRIAL_HEAT": 1.0,
+      "NATURAL_WILDLAND_FIRE": 1.0
+    },
+    "per_class_recall": {
+      "LIKELY_INDUSTRIAL_INCIDENT": 0.0,
+      "PERSISTENT_INDUSTRIAL_HEAT": 1.0,
+      "NATURAL_WILDLAND_FIRE": 1.0
+    },
+    "per_class_precision": {
+      "LIKELY_INDUSTRIAL_INCIDENT": 0.0,
+      "PERSISTENT_INDUSTRIAL_HEAT": 1.0,
+      "NATURAL_WILDLAND_FIRE": 1.0
+    },
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        14,
+        0
+      ],
+      [
+        0,
+        0,
+        14275
+      ]
+    ],
+    "ece": 0.0003
+  },
+  "uncalibrated_ece": 0.0003,
+  "calibrated_ece": 0.0003,
+  "independent_evaluation_support": 10,
+  "independent_raw_accuracy": 0.0,
+  "artifacts": [
+    "gbdt_model_v1.0.joblib",
+    "calibrator_v1.0.joblib",
+    "preprocessor_v1.0.joblib",
+    "feature_schema_v1.0.json",
+    "label_mapping_v1.0.json",
+    "experiment_config_v1.0.json"
+  ]
+}

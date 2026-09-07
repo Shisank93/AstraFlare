@@ -1,0 +1,12 @@
+{
+  "class_to_idx": {
+    "LIKELY_INDUSTRIAL_INCIDENT": 0,
+    "PERSISTENT_INDUSTRIAL_HEAT": 1,
+    "NATURAL_WILDLAND_FIRE": 2
+  },
+  "idx_to_class": {
+    "0": "LIKELY_INDUSTRIAL_INCIDENT",
+    "1": "PERSISTENT_INDUSTRIAL_HEAT",
+    "2": "NATURAL_WILDLAND_FIRE"
+  }
+}

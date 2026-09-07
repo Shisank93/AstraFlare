@@ -133,7 +133,7 @@ class GISEngine:
         if not valid:
             raise ValueError(err)
 
-        if self.db.is_postgres:
+        if self.db.is_postgres and getattr(self.db, "has_postgis", False):
             query = """
             SELECT 
                 id, osm_id, name, facility_type, tags,
@@ -185,7 +185,7 @@ class GISEngine:
         if not valid:
             raise ValueError(err)
 
-        if self.db.is_postgres:
+        if self.db.is_postgres and getattr(self.db, "has_postgis", False):
             query = """
             SELECT COUNT(*) AS count
             FROM industrial_sites
@@ -227,7 +227,7 @@ class GISEngine:
         if not valid:
             raise ValueError(err)
 
-        if self.db.is_postgres:
+        if self.db.is_postgres and getattr(self.db, "has_postgis", False):
             query = """
             SELECT frp
             FROM hotspots
@@ -245,7 +245,22 @@ class GISEngine:
             res = self.db.execute_query(query, tuple(params))
             frp_list = [r["frp"] for r in res]
         else:
-            hotspots = self.db.execute_query("SELECT id, latitude, longitude, frp FROM hotspots;")
+            lat_delta = radius_m / 111000.0
+            lon_delta = radius_m / (111000.0 * max(0.1, math.cos(math.radians(latitude))))
+            min_lat, max_lat = latitude - lat_delta, latitude + lat_delta
+            min_lon, max_lon = longitude - lon_delta, longitude + lon_delta
+
+            if self.db.is_postgres:
+                hotspots = self.db.execute_query(
+                    "SELECT id, latitude, longitude, frp FROM hotspots WHERE latitude BETWEEN %s AND %s AND longitude BETWEEN %s AND %s;",
+                    (min_lat, max_lat, min_lon, max_lon)
+                )
+            else:
+                hotspots = self.db.execute_query(
+                    "SELECT id, latitude, longitude, frp FROM hotspots WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?;",
+                    (min_lat, max_lat, min_lon, max_lon)
+                )
+
             frp_list = []
             for h in hotspots:
                 if exclude_hotspot_id and h["id"] == exclude_hotspot_id:

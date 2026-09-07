@@ -1,0 +1,10 @@
+{
+  "experiment_id": "astraflare_ml_phase3_10_20260905_171354",
+  "random_seed": 42,
+  "train_ratio": 0.8,
+  "splitter_type": "FacilityGroupSplitter",
+  "selected_model": "RandomForestClassifier",
+  "human_review_threshold": 0.65,
+  "dataset_version": "DATASET_C_EVENT_LEVEL",
+  "model_status": "RESEARCH BASELINE \u2014 DATA-LIMITED"
+}

@@ -48,7 +48,7 @@ class LandCoverEngine:
             raise ValueError(err)
 
         # 1. Database PostGIS Geometry / Raster Lookup
-        if self.db.is_postgres:
+        if self.db.is_postgres and getattr(self.db, "has_postgis", False):
             query = """
             SELECT class_code, class_name, description
             FROM land_cover
