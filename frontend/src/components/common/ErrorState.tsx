@@ -15,8 +15,11 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
 }) => {
   return (
     <div style={{ padding: '24px 16px', textAlign: 'center', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', margin: '16px' }}>
-      <div style={{ display: 'inline-flex', padding: '8px', borderRadius: '50%', backgroundColor: '#fee2e2', color: '#dc2626', marginBottom: '8px' }}>
-        <AlertOctagon size={24} />
+      <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', marginBottom: '8px' }}>
+        <img src="/src/assets/branding/astraflare-logo.png" alt="AstraFlare Logo" style={{ height: '32px', objectFit: 'contain', marginBottom: '8px', opacity: 0.8 }} />
+        <div style={{ display: 'inline-flex', padding: '8px', borderRadius: '50%', backgroundColor: '#fee2e2', color: '#dc2626' }}>
+          <AlertOctagon size={24} />
+        </div>
       </div>
       <div style={{ fontWeight: 600, fontSize: '14px', color: '#991b1b', marginBottom: '4px' }}>{title}</div>
       <div style={{ fontSize: '12px', color: '#7f1d1d', marginBottom: '12px' }}>{message}</div>

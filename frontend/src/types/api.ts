@@ -3,7 +3,7 @@
  * Matches backend Pydantic schemas in backend/app/schemas/
  */
 
-export type DataGovernanceSource = 'REAL' | 'SYNTHETIC_DEMO';
+export type DataGovernanceSource = 'REAL' | 'REAL_LIVE' | 'SYNTHETIC_DEMO';
 
 export type ClassificationType =
   | 'LIKELY_INDUSTRIAL_INCIDENT'
@@ -99,14 +99,17 @@ export interface ClassProbabilities {
 
 export interface PredictionResponse {
   hotspot_id: string;
-  predicted_class: ClassificationType;
-  confidence: number;
-  probabilities: ClassProbabilities;
+  predicted_class?: ClassificationType | null;
+  confidence?: number | null;
+  probabilities?: ClassProbabilities | null;
   review_required: boolean;
   human_review_threshold: number;
   model_version: string;
   model_status: string; // e.g. "RESEARCH BASELINE"
   limitations: string;
+  is_ml_prediction: boolean;
+  reference_label?: string | null;
+  reference_provenance?: string | null;
 }
 
 export interface EvidenceItem {

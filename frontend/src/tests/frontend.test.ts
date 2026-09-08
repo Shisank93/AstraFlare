@@ -72,11 +72,12 @@ function testPredictionModelStatus() {
     model_version: 'v1.0.0-gbdt',
     model_status: 'RESEARCH BASELINE',
     limitations: 'Model status is RESEARCH BASELINE due to limited independent external ground truth.',
+    is_ml_prediction: true,
   };
 
   assert(mockPrediction.model_status === 'RESEARCH BASELINE', 'Model status must be RESEARCH BASELINE');
   assert(mockPrediction.review_required === true, 'Abstention must be true when confidence < threshold');
-  assert(mockPrediction.confidence < mockPrediction.human_review_threshold, 'Confidence must be lower than threshold');
+  assert((mockPrediction.confidence ?? 0) < mockPrediction.human_review_threshold, 'Confidence must be lower than threshold');
   console.log('✔ Prediction status & operational abstention test passed');
 }
 

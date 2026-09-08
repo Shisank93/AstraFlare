@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Map, BarChart3, ShieldCheck, Globe, Database, TestTube } from 'lucide-react';
+import { Map, BarChart3, ShieldCheck, Database, TestTube } from 'lucide-react';
 import { api } from './api/client';
 import type { HealthResponse, DataGovernanceSource } from './types/api';
 import { OperationsPage } from './pages/OperationsPage';
@@ -32,9 +32,8 @@ export const App: React.FC = () => {
       {/* Top Application Header */}
       <header className="app-header">
         <div className="brand-section">
-          <div className="brand-title">
-            <Globe size={20} style={{ color: '#60a5fa' }} />
-            ASTRAFLARE
+          <div className="brand-title" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/src/assets/branding/astraflare-logo.png" alt="AstraFlare Logo" style={{ height: '36px', objectFit: 'contain' }} />
           </div>
           <div className="brand-subtitle">Geospatial Intelligence Engine</div>
         </div>
@@ -82,7 +81,26 @@ export const App: React.FC = () => {
                 transition: 'all 0.15s ease',
               }}
             >
-              <Database size={11} /> REAL DATA
+              <Database size={11} /> REAL · HISTORICAL
+            </button>
+            <button
+              onClick={() => setDataMode('REAL_LIVE')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 10px',
+                fontSize: '11px',
+                fontWeight: 600,
+                borderRadius: '3px',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: dataMode === 'REAL_LIVE' ? '#ef4444' : 'transparent',
+                color: '#ffffff',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Database size={11} /> REAL · LIVE
             </button>
             <button
               onClick={() => setDataMode('SYNTHETIC_DEMO')}

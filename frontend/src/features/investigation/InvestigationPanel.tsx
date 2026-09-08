@@ -205,41 +205,66 @@ export const InvestigationPanel: React.FC<InvestigationPanelProps> = ({
               </span>
             </div>
 
-            <div style={{ marginBottom: '12px', padding: '10px 12px', backgroundColor: 'var(--bg-surface-subtle)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Predicted Class</span>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-blue)' }}>
-                  Confidence: {(prediction.confidence * 100).toFixed(1)}%
-                </span>
-              </div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                {prediction.predicted_class.replace(/_/g, ' ')}
-              </div>
-            </div>
-
-            {/* Probability Breakdown */}
-            <div style={{ marginTop: '8px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
-                Class Probability Distribution
-              </div>
-              {Object.entries(prediction.probabilities).map(([clsName, prob]) => (
-                <div key={clsName} className="prob-bar-container">
-                  <div className="prob-label-row">
-                    <span>{clsName.replace(/_/g, ' ')}</span>
-                    <span style={{ fontWeight: 600 }}>{(prob * 100).toFixed(1)}%</span>
+            {!prediction.is_ml_prediction ? (
+              <div style={{ marginBottom: '12px', padding: '16px', backgroundColor: 'var(--bg-surface-subtle)', borderRadius: '6px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>
+                  ML Prediction Unavailable
+                </div>
+                {prediction.reference_label && (
+                  <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-color)', textAlign: 'left' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Reference Label</span>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '4px' }}>
+                      {prediction.reference_label.replace(/_/g, ' ')}
+                    </div>
+                    {prediction.reference_provenance && (
+                      <span className="badge badge-neutral" style={{ fontSize: '10px', marginTop: '4px' }}>
+                        Provenance: {prediction.reference_provenance}
+                      </span>
+                    )}
                   </div>
-                  <div className="prob-bar-track">
-                    <div
-                      className="prob-bar-fill"
-                      style={{
-                        width: `${prob * 100}%`,
-                        backgroundColor: clsName === prediction.predicted_class ? 'var(--accent-blue)' : '#cbd5e1',
-                      }}
-                    />
+                )}
+              </div>
+            ) : (
+              <>
+                <div style={{ marginBottom: '12px', padding: '10px 12px', backgroundColor: 'var(--bg-surface-subtle)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Predicted Class</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-blue)' }}>
+                      Confidence: {prediction.confidence != null ? (prediction.confidence * 100).toFixed(1) : 0}%
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {prediction.predicted_class ? prediction.predicted_class.replace(/_/g, ' ') : 'UNAVAILABLE'}
                   </div>
                 </div>
-              ))}
-            </div>
+
+                {/* Probability Breakdown */}
+                {prediction.probabilities && (
+                  <div style={{ marginTop: '8px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
+                      Class Probability Distribution
+                    </div>
+                    {Object.entries(prediction.probabilities).map(([clsName, prob]) => (
+                      <div key={clsName} className="prob-bar-container">
+                        <div className="prob-label-row">
+                          <span>{clsName.replace(/_/g, ' ')}</span>
+                          <span style={{ fontWeight: 600 }}>{(Number(prob) * 100).toFixed(1)}%</span>
+                        </div>
+                        <div className="prob-bar-track">
+                          <div
+                            className="prob-bar-fill"
+                            style={{
+                              width: `${Number(prob) * 100}%`,
+                              backgroundColor: clsName === prediction.predicted_class ? 'var(--accent-blue)' : '#cbd5e1',
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
 
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '8px' }}>
               {prediction.limitations}

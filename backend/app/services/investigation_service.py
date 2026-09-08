@@ -173,7 +173,7 @@ class InvestigationService:
                 item["review_required"] = bool(item.get("human_review_required"))
                 item["priority"] = item.get("investigation_priority") or "LOW"
                 item["risk_level"] = item.get("risk_level") or "LOW"
-                item["classification"] = "LIKELY_INDUSTRIAL_INCIDENT" if item.get("risk_level") == "HIGH" else "NATURAL_WILDLAND_FIRE"
+                # Removed fabricated ML classification based on risk_level
             items.append(item)
 
         return items, total_records

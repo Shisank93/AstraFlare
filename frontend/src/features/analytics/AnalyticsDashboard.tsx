@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, PieChart, ShieldCheck, Activity, Factory, AlertTriangle, Layers } from 'lucide-react';
+import { Activity, AlertTriangle, Factory, PieChart, ShieldCheck, Layers } from 'lucide-react';
 import { api } from '../../api/client';
 import type { AnalyticsSummary } from '../../types/api';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -48,7 +48,10 @@ export const AnalyticsDashboard: React.FC = () => {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <span className="badge badge-neutral" style={{ padding: '6px 12px', fontSize: '12px' }}>
-            Data Governance: REAL ({summary.real_hotspots_count} Observations)
+            Dataset: NASA FIRMS (India)
+          </span>
+          <span className="badge badge-neutral" style={{ padding: '6px 12px', fontSize: '12px' }}>
+            Data Governance: REAL ({summary.real_hotspots_count} loaded events)
           </span>
         </div>
       </div>
@@ -57,7 +60,7 @@ export const AnalyticsDashboard: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <div style={{ backgroundColor: 'var(--bg-surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '12px', fontWeight: 600 }}>
-            <span>TOTAL THERMAL ANOMALIES</span>
+            <span>TOTAL EVENTS</span>
             <Activity size={16} style={{ color: 'var(--accent-blue)' }} />
           </div>
           <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '8px' }}>
@@ -70,7 +73,7 @@ export const AnalyticsDashboard: React.FC = () => {
 
         <div style={{ backgroundColor: 'var(--bg-surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '12px', fontWeight: 600 }}>
-            <span>HIGH RISK INCIDENTS</span>
+            <span>HIGH RISK EVENTS</span>
             <AlertTriangle size={16} style={{ color: '#dc2626' }} />
           </div>
           <div style={{ fontSize: '24px', fontWeight: 800, color: '#dc2626', marginTop: '8px' }}>
@@ -83,20 +86,20 @@ export const AnalyticsDashboard: React.FC = () => {
 
         <div style={{ backgroundColor: 'var(--bg-surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '12px', fontWeight: 600 }}>
-            <span>PENDING HUMAN REVIEW</span>
+            <span>PENDING HUMAN ESCALATIONS</span>
             <ShieldCheck size={16} style={{ color: '#7c3aed' }} />
           </div>
           <div style={{ fontSize: '24px', fontWeight: 800, color: '#7c3aed', marginTop: '8px' }}>
             {(summary.review_queue?.pending_review_count ?? summary.human_review_count ?? 0).toLocaleString()}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            {summary.review_queue?.reviewed_count ?? summary.total_reviews_submitted ?? 0} completed analyst reviews
+            {summary.review_queue?.reviewed_count ?? summary.total_reviews_submitted ?? 0} COMPLETED ANALYST REVIEWS
           </div>
         </div>
 
         <div style={{ backgroundColor: 'var(--bg-surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '12px', fontWeight: 600 }}>
-            <span>INDUSTRIAL PROXIMITY (1KM)</span>
+            <span>INDUSTRIAL PROXIMITY EVENTS</span>
             <Factory size={16} style={{ color: 'var(--accent-navy)' }} />
           </div>
           <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '8px' }}>
@@ -110,31 +113,12 @@ export const AnalyticsDashboard: React.FC = () => {
 
       {/* Main Breakdown Section Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
-        {/* Classification Distribution */}
-        <div style={{ backgroundColor: 'var(--bg-surface)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <BarChart3 size={16} /> Classification Distribution
-          </div>
-          {(Object.entries(summary.classification_breakdown || summary.hotspots_by_classification || {}) as [string, number][]).map(([cls, count]) => {
-            const pct = (summary.total_hotspots || summary.total_events || 0) > 0 ? (count / (summary.total_hotspots || summary.total_events || 1)) * 100 : 0;
-            return (
-              <div key={cls} style={{ marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}>
-                  <span style={{ fontWeight: 600 }}>{cls.replace(/_/g, ' ')}</span>
-                  <span>{count.toLocaleString()} ({pct.toFixed(1)}%)</span>
-                </div>
-                <div style={{ height: '8px', backgroundColor: 'var(--bg-surface-subtle)', borderRadius: '4px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${pct}%`, backgroundColor: cls === 'LIKELY_INDUSTRIAL_INCIDENT' ? '#dc2626' : cls === 'PERSISTENT_INDUSTRIAL_HEAT' ? '#d97706' : '#16a34a' }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+
 
         {/* Operational Risk Distribution */}
         <div style={{ backgroundColor: 'var(--bg-surface)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
           <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <PieChart size={16} /> Prioritization Risk Breakdown
+            <PieChart size={16} /> Operational Risk Distribution
           </div>
           {(Object.entries(summary.risk_breakdown || summary.events_by_risk_level || {}) as [string, number][]).map(([rk, count]) => {
             const pct = (summary.total_hotspots || summary.total_events || 0) > 0 ? (count / (summary.total_hotspots || summary.total_events || 1)) * 100 : 0;
@@ -156,7 +140,7 @@ export const AnalyticsDashboard: React.FC = () => {
         {/* Satellite Sensor Distribution */}
         <div style={{ backgroundColor: 'var(--bg-surface)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
           <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Layers size={16} /> Satellite Sensor Constellation
+            <Layers size={16} /> SATELLITE SENSOR DISTRIBUTION
           </div>
           {(Object.entries(summary.sensor_breakdown || summary.sensor_distribution || {}) as [string, number][]).map(([sensor, count]) => {
             const pct = (summary.total_hotspots || summary.total_events || 0) > 0 ? (count / (summary.total_hotspots || summary.total_events || 1)) * 100 : 0;

@@ -38,7 +38,7 @@ class AnalyticsService:
             prio_dist = {r["investigation_priority"]: r["cnt"] for r in prio_res}
 
             # Human review required
-            rev_query = "SELECT COUNT(*) as cnt FROM events WHERE data_source = 'REAL' AND human_review_required = TRUE;" if self.db.is_postgres else "SELECT COUNT(*) as cnt FROM events WHERE data_source = 'REAL' AND human_review_required = 1;"
+            rev_query = "SELECT COUNT(*) as cnt FROM events e WHERE e.data_source = 'REAL' AND e.human_review_required = TRUE AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.hotspot_id = e.event_id);" if self.db.is_postgres else "SELECT COUNT(*) as cnt FROM events e WHERE e.data_source = 'REAL' AND e.human_review_required = 1 AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.hotspot_id = e.event_id);"
             rev_res = self.db.execute_query(rev_query)
             review_count = rev_res[0]["cnt"] if rev_res else 0
             review_pct = round((review_count / total_events * 100.0), 2) if total_events > 0 else 0.0
@@ -102,11 +102,7 @@ class AnalyticsService:
                 "pending_review_count": review_count,
                 "reviewed_count": total_reviews_submitted
             },
-            "hotspots_by_classification": {
-                "LIKELY_INDUSTRIAL_INCIDENT": risk_dist.get("HIGH", 0),
-                "PERSISTENT_INDUSTRIAL_HEAT": risk_dist.get("MEDIUM", 0),
-                "NATURAL_WILDLAND_FIRE": risk_dist.get("LOW", 0)
-            },
+            "hotspots_by_classification": {},
             "sensor_distribution": {
                 "VIIRS_SNPP": int(total_events * 0.50),
                 "NOAA20": int(total_events * 0.35),

@@ -57,21 +57,25 @@ class PredictionService:
         if pred_res:
             predicted_class = pred_res.get("predicted_class", "UNLABELED")
             confidence = float(pred_res.get("confidence", 0.5))
-            probs = pred_res.get("probabilities", {})
+            raw_probs = pred_res.get("probabilities", {})
+            probs = {
+                "LIKELY_INDUSTRIAL_INCIDENT": round(float(raw_probs.get("LIKELY_INDUSTRIAL_INCIDENT", 0.0)), 4),
+                "PERSISTENT_INDUSTRIAL_HEAT": round(float(raw_probs.get("PERSISTENT_INDUSTRIAL_HEAT", 0.0)), 4),
+                "NATURAL_WILDLAND_FIRE": round(float(raw_probs.get("NATURAL_WILDLAND_FIRE", 0.0)), 4)
+            }
+            is_ml = True
+            ref_label = None
+            ref_prov = None
+            review_required = confidence < self.threshold
         else:
             lbl_meta = construct_weak_label(feat_vector)
-            predicted_class = lbl_meta["label"]
-            confidence = float(lbl_meta["label_confidence"])
-            if predicted_class == "LIKELY_INDUSTRIAL_INCIDENT":
-                probs = {"LIKELY_INDUSTRIAL_INCIDENT": confidence, "PERSISTENT_INDUSTRIAL_HEAT": (1-confidence)*0.7, "NATURAL_WILDLAND_FIRE": (1-confidence)*0.3}
-            elif predicted_class == "PERSISTENT_INDUSTRIAL_HEAT":
-                probs = {"LIKELY_INDUSTRIAL_INCIDENT": (1-confidence)*0.3, "PERSISTENT_INDUSTRIAL_HEAT": confidence, "NATURAL_WILDLAND_FIRE": (1-confidence)*0.7}
-            elif predicted_class == "NATURAL_WILDLAND_FIRE":
-                probs = {"LIKELY_INDUSTRIAL_INCIDENT": (1-confidence)*0.2, "PERSISTENT_INDUSTRIAL_HEAT": (1-confidence)*0.3, "NATURAL_WILDLAND_FIRE": confidence}
-            else:
-                probs = {"LIKELY_INDUSTRIAL_INCIDENT": 0.33, "PERSISTENT_INDUSTRIAL_HEAT": 0.33, "NATURAL_WILDLAND_FIRE": 0.34}
-
-        review_required = confidence < self.threshold
+            predicted_class = None
+            confidence = None
+            probs = None
+            is_ml = False
+            ref_label = lbl_meta["label"]
+            ref_prov = "WEAK_RULE"
+            review_required = True
 
         limitations = (
             "Model operates in RESEARCH BASELINE mode. Trained on 8,786 REAL FIRMS observations with 274 labeled events. "
@@ -81,17 +85,16 @@ class PredictionService:
         return {
             "hotspot_id": hotspot_id,
             "predicted_class": predicted_class,
-            "confidence": round(confidence, 4),
-            "probabilities": {
-                "LIKELY_INDUSTRIAL_INCIDENT": round(float(probs.get("LIKELY_INDUSTRIAL_INCIDENT", 0.0)), 4),
-                "PERSISTENT_INDUSTRIAL_HEAT": round(float(probs.get("PERSISTENT_INDUSTRIAL_HEAT", 0.0)), 4),
-                "NATURAL_WILDLAND_FIRE": round(float(probs.get("NATURAL_WILDLAND_FIRE", 0.0)), 4)
-            },
+            "confidence": confidence,
+            "probabilities": probs,
             "review_required": review_required,
             "human_review_threshold": self.threshold,
             "model_version": settings.VERSION,
             "model_status": self.model_status,
-            "limitations": limitations
+            "limitations": limitations,
+            "is_ml_prediction": is_ml,
+            "reference_label": ref_label,
+            "reference_provenance": ref_prov
         }
 
 prediction_service = PredictionService()

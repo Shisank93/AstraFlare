@@ -143,6 +143,29 @@ export const OperationsPage: React.FC<OperationsPageProps> = ({ dataMode }) => {
         </div>
       )}
 
+      {/* REAL LIVE Mode Header Banner */}
+      {dataMode === 'REAL_LIVE' && (
+        <div style={{ backgroundColor: '#fee2e2', borderBottom: '1px solid #fecaca', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 600, color: '#991b1b' }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#dc2626', animation: 'pulse 2s infinite' }} />
+            LIVE NASA FIRMS FEED · INDIA
+          </div>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={async () => {
+              try {
+                await fetch('http://localhost:8000/api/ingestion/firms/live?country=IND&source=VIIRS_SNPP_NRT', { method: 'POST' });
+                loadMapData();
+              } catch (e) {
+                console.error('Failed to trigger live data fetch', e);
+              }
+            }}
+          >
+            Refresh Live NASA Data
+          </button>
+        </div>
+      )}
+
       {/* Main Operations Grid */}
       <div className="operations-layout" style={{ flex: 1 }}>
         {/* Left Sidebar: Filters & High Priority Alerts Queue */}

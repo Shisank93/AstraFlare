@@ -98,8 +98,16 @@ export const InvestigationsHistoryView: React.FC = () => {
                       riskLevel={rev.review_status === 'CONFIRMED' ? 'LOW' : rev.review_status === 'REJECTED' ? 'HIGH' : 'MEDIUM'}
                     />
                   </td>
-                  <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>{rev.original_prediction.replace(/_/g, ' ')}</td>
-                  <td style={{ padding: '12px 16px', fontWeight: 600 }}>{rev.final_classification.replace(/_/g, ' ')}</td>
+                  <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>
+                    {rev.original_prediction && rev.original_prediction !== 'UNKNOWN' && rev.original_prediction !== 'UNCLASSIFIED'
+                      ? rev.original_prediction.replace(/_/g, ' ') 
+                      : <span style={{ fontStyle: 'italic', opacity: 0.7 }}>Prediction unavailable</span>}
+                  </td>
+                  <td style={{ padding: '12px 16px', fontWeight: 600 }}>
+                    {rev.final_classification && rev.final_classification !== 'UNKNOWN' && rev.final_classification !== 'UNCLASSIFIED'
+                      ? rev.final_classification.replace(/_/g, ' ') 
+                      : <span style={{ fontStyle: 'italic', opacity: 0.7 }}>Classification unavailable</span>}
+                  </td>
                   <td style={{ padding: '12px 16px' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
                       <UserCheck size={13} style={{ color: 'var(--accent-navy)' }} />
@@ -107,7 +115,7 @@ export const InvestigationsHistoryView: React.FC = () => {
                     </span>
                   </td>
                   <td style={{ padding: '12px 16px', color: 'var(--text-secondary)', maxWidth: '240px' }}>
-                    {rev.analyst_note || <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No notes provided</span>}
+                    {rev.analyst_note || <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Notes unavailable</span>}
                   </td>
                   <td style={{ padding: '12px 16px', color: 'var(--text-muted)', fontSize: '12px' }}>
                     {new Date(rev.created_at).toLocaleString()}

@@ -200,11 +200,13 @@ class FIRMSIngestionClient:
             return None
 
     def ingest_firms_data(
-        self, country: str = "IND", extent: Optional[str] = None, source: str = "VIIRS_SNPP_NRT", days: int = 1, mock_fallback: bool = False
+        self, country: str = "IND", extent: Optional[str] = None, source: str = "VIIRS_SNPP_NRT", days: int = 1, mock_fallback: bool = False, data_source_tag: str = "REAL"
     ) -> Dict[str, Any]:
         """Runs end-to-end FIRMS fetch, validation, normalization, and idempotent database insertion."""
         db_manager.connect()
-        data_source_tag = settings.DATA_SOURCE_REAL
+        # Override if mock_fallback
+        if mock_fallback:
+            data_source_tag = "MOCK"
 
         csv_content = None
         if not mock_fallback:
