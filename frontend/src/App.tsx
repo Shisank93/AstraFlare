@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Map, BarChart3, ShieldCheck, Database, TestTube } from 'lucide-react';
+import { Map, BarChart3, ShieldCheck, Database, FileText } from 'lucide-react';
 import { api } from './api/client';
 import type { HealthResponse, DataGovernanceSource } from './types/api';
 import { OperationsPage } from './pages/OperationsPage';
 import { AnalyticsDashboard } from './features/analytics/AnalyticsDashboard';
+import { ReportsPage } from './pages/ReportsPage';
 import { InvestigationsHistoryView } from './features/investigation/InvestigationsHistoryView';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'operations' | 'analytics' | 'audit'>('operations');
+  const [activeTab, setActiveTab] = useState<'operations' | 'analytics' | 'reports' | 'audit'>('operations');
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [dataMode, setDataMode] = useState<DataGovernanceSource>('REAL');
 
@@ -32,10 +33,11 @@ export const App: React.FC = () => {
       {/* Top Application Header */}
       <header className="app-header">
         <div className="brand-section">
-          <div className="brand-title" style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/src/assets/branding/astraflare-logo.png" alt="AstraFlare Logo" style={{ height: '36px', objectFit: 'contain' }} />
+          <div className="brand-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img className="logo" src="/src/assets/branding/astraflare-logo.png" alt="AstraFlare Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+            <span style={{ fontWeight: 700, fontSize: '16px', color: '#ffffff', letterSpacing: '0.5px' }}>AstraFlare</span>
           </div>
-          <div className="brand-subtitle">Geospatial Intelligence Engine</div>
+          <span className="brand-subtitle">Geospatial Intelligence</span>
         </div>
 
         {/* Primary View Navigation Tabs */}
@@ -50,19 +52,41 @@ export const App: React.FC = () => {
             className={`nav-tab ${activeTab === 'analytics' ? 'active' : ''}`}
             onClick={() => setActiveTab('analytics')}
           >
-            <BarChart3 size={15} /> Analytics Summary
+            <BarChart3 size={15} /> Summary
+          </button>
+          <button
+            className={`nav-tab ${activeTab === 'reports' ? 'active' : ''}`}
+            onClick={() => setActiveTab('reports')}
+          >
+            <FileText size={15} /> Reports
           </button>
           <button
             className={`nav-tab ${activeTab === 'audit' ? 'active' : ''}`}
             onClick={() => setActiveTab('audit')}
           >
-            <ShieldCheck size={15} /> Analyst Audit Log
+            <ShieldCheck size={15} /> Audit Log
           </button>
         </nav>
 
-        {/* Right Section: Mode Selector & Health Status Indicator */}
+        {/* Right Section: Mode Selector & Health Status */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Data Mode Selector */}
+          {/* System Health Indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#94a3b8' }}>
+            <span
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                backgroundColor: health?.status === 'healthy' ? '#10b981' : health ? '#f59e0b' : '#64748b',
+                boxShadow: health?.status === 'healthy' ? '0 0 6px rgba(16, 185, 129, 0.6)' : 'none',
+              }}
+            />
+            <span style={{ fontWeight: 500, letterSpacing: '0.02em' }}>
+              {health ? (health.status === 'healthy' ? 'SYS OPERATIONAL' : 'SYS DEGRADED') : 'CONNECTING...'}
+            </span>
+          </div>
+
+          {/* Strict Data Mode Selector: REAL HISTORICAL vs REAL LIVE only */}
           <div style={{ display: 'flex', backgroundColor: 'rgba(0, 0, 0, 0.3)', borderRadius: '4px', padding: '2px' }}>
             <button
               onClick={() => setDataMode('REAL')}
@@ -102,33 +126,6 @@ export const App: React.FC = () => {
             >
               <Database size={11} /> REAL · LIVE
             </button>
-            <button
-              onClick={() => setDataMode('SYNTHETIC_DEMO')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '4px 10px',
-                fontSize: '11px',
-                fontWeight: 600,
-                borderRadius: '3px',
-                border: 'none',
-                cursor: 'pointer',
-                backgroundColor: dataMode === 'SYNTHETIC_DEMO' ? '#7c3aed' : 'transparent',
-                color: '#ffffff',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <TestTube size={11} /> DEMO MODE
-            </button>
-          </div>
-
-          <div className="system-status-indicator">
-            <div className={`status-dot ${health?.status === 'healthy' ? '' : 'degraded'}`} />
-            <span>
-              {health?.status === 'healthy' ? 'System Operational' : 'Backend Degraded'} | DB:{' '}
-              {health?.database || 'check...'}
-            </span>
           </div>
         </div>
       </header>
@@ -137,6 +134,7 @@ export const App: React.FC = () => {
       <main style={{ flex: 1, overflow: 'hidden' }}>
         {activeTab === 'operations' && <OperationsPage dataMode={dataMode} setDataMode={setDataMode} />}
         {activeTab === 'analytics' && <AnalyticsDashboard />}
+        {activeTab === 'reports' && <ReportsPage />}
         {activeTab === 'audit' && <InvestigationsHistoryView />}
       </main>
     </div>

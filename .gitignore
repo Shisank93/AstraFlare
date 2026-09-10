@@ -56,3 +56,6 @@ data/processed/*
 .vscode/
 *.swp
 *.swo
+
+# Private Research Paper
+research-paper-private/

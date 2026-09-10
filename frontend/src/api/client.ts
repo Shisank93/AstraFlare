@@ -25,12 +25,19 @@ const getApiBaseUrl = () => {
   return 'http://127.0.0.1:8000';
 };
 
-class ApiError extends Error {
+export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
+  }
+}
+
+export class NetworkError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NetworkError';
   }
 }
 
@@ -42,13 +49,18 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     Accept: 'application/json',
   };
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    });
+  } catch (error: any) {
+    throw new NetworkError(`Unable to reach AstraFlare backend: ${error.message || 'Connection failed'}`);
+  }
 
   if (!response.ok) {
     let errorDetail = `HTTP Error ${response.status}: ${response.statusText}`;
@@ -111,6 +123,10 @@ export const api = {
     return request<GeoJSONFeatureCollection>(`/api/hotspots/geojson${queryString ? `?${queryString}` : ''}`);
   },
 
+  async getMetadata(dataSource: 'REAL' | 'SYNTHETIC' = 'REAL'): Promise<{ min_date: string; max_date: string }> {
+    return request<{ min_date: string; max_date: string }>(`/api/hotspots/metadata?data_source=${dataSource}`);
+  },
+
   async getHotspotDetail(id: string): Promise<HotspotDetail> {
     return request<HotspotDetail>(`/api/hotspots/${encodeURIComponent(id)}`);
   },
@@ -158,9 +174,54 @@ export const api = {
     return request<IndustrialSite>(`/api/industrial-sites/${encodeURIComponent(id)}`);
   },
 
-  // Analytics
+  // Analytics Intelligence
   async getAnalyticsSummary(): Promise<AnalyticsSummary> {
     return request<AnalyticsSummary>('/api/analytics/summary');
+  },
+
+  async getAnalyticsThermal(): Promise<any> {
+    return request<any>('/api/analytics/thermal');
+  },
+
+  async getAnalyticsML(): Promise<any> {
+    return request<any>('/api/analytics/ml');
+  },
+
+  async getAnalyticsGeospatial(): Promise<any> {
+    return request<any>('/api/analytics/geospatial');
+  },
+
+  async getAnalyticsRisk(): Promise<any> {
+    return request<any>('/api/analytics/risk');
+  },
+
+  async getAnalyticsInvestigations(): Promise<any> {
+    return request<any>('/api/analytics/investigations');
+  },
+
+  // Intelligence Reports
+  async getEventReport(eventId: string): Promise<any> {
+    return request<any>(`/api/reports/event/${encodeURIComponent(eventId)}`);
+  },
+
+  async getSummaryReport(params: {
+    report_type?: string;
+    start_date?: string;
+    end_date?: string;
+  } = {}): Promise<any> {
+    const query = new URLSearchParams();
+    if (params.report_type) query.set('report_type', params.report_type);
+    if (params.start_date) query.set('start_date', params.start_date);
+    if (params.end_date) query.set('end_date', params.end_date);
+    const queryString = query.toString();
+    return request<any>(`/api/reports/summary${queryString ? `?${queryString}` : ''}`);
+  },
+
+  // Live NASA FIRMS Refresh
+  async refreshLiveFirms(source: string = 'VIIRS_SNPP_NRT'): Promise<any> {
+    return request<any>(`/api/ingestion/firms/live?country=IND&source=${encodeURIComponent(source)}`, {
+      method: 'POST'
+    });
   },
 
   // Investigations & Human Review
@@ -185,3 +246,4 @@ export const api = {
     return request<PaginatedResponse<ReviewResponse>>(`/api/investigations${queryString ? `?${queryString}` : ''}`);
   },
 };
+

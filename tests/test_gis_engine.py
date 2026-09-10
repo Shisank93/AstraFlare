@@ -11,23 +11,23 @@ def gis_test_env():
     db.connect()
     engine = GISEngine(db)
 
-    # Insert mock industrial site & historical hotspots
+    # Insert mock industrial site & historical hotspots in isolated test coordinates
     db.execute_query(
         "INSERT INTO industrial_sites (osm_id, name, facility_type, geom, data_source) "
-        "VALUES ('way_test_gis', 'Test Refinery', 'refinery', 'POINT(73.0 22.0)', 'OSM');"
+        "VALUES ('way_test_gis', 'Test Refinery', 'refinery', 'POINT(50.0 1.0)', 'OSM');"
     )
 
     db.execute_query(
         "INSERT INTO hotspots (id, latitude, longitude, geom, acq_timestamp, satellite, frp, data_source) "
-        "VALUES ('hist_hs_1', 22.001, 73.001, 'POINT(73.001 22.001)', '2026-09-01T10:00:00Z', 'VIIRS', 40.0, 'REAL');"
+        "VALUES ('hist_hs_1', 1.001, 50.001, 'POINT(50.001 1.001)', '2026-09-01T10:00:00Z', 'VIIRS', 40.0, 'REAL');"
     )
     db.execute_query(
         "INSERT INTO hotspots (id, latitude, longitude, geom, acq_timestamp, satellite, frp, data_source) "
-        "VALUES ('hist_hs_2', 22.002, 73.002, 'POINT(73.002 22.002)', '2026-09-02T10:00:00Z', 'VIIRS', 50.0, 'REAL');"
+        "VALUES ('hist_hs_2', 1.002, 50.002, 'POINT(50.002 1.002)', '2026-09-02T10:00:00Z', 'VIIRS', 50.0, 'REAL');"
     )
     db.execute_query(
         "INSERT INTO hotspots (id, latitude, longitude, geom, acq_timestamp, satellite, frp, data_source) "
-        "VALUES ('target_hs_3', 22.000, 73.000, 'POINT(73.000 22.000)', '2026-09-04T10:00:00Z', 'VIIRS', 150.0, 'REAL');"
+        "VALUES ('target_hs_3', 1.000, 50.000, 'POINT(50.000 1.000)', '2026-09-04T10:00:00Z', 'VIIRS', 150.0, 'REAL');"
     )
 
     yield engine
@@ -42,20 +42,20 @@ def test_haversine_distance():
     assert 130000 <= dist <= 140000
 
 def test_nearest_industrial_site(gis_test_env):
-    # Search near (22.001, 73.001) -> should find Test Refinery (22.0, 73.0) ~140m away
-    site, dist = gis_test_env.get_nearest_industrial_site(22.001, 73.001, max_distance_m=5000.0)
+    # Search near (1.001, 50.001) -> should find Test Refinery (1.0, 50.0) ~140m away
+    site, dist = gis_test_env.get_nearest_industrial_site(1.001, 50.001, max_distance_m=5000.0)
     assert site is not None
     assert site["name"] == "Test Refinery"
     assert dist < 300.0
 
 def test_count_industrial_sites_in_radius(gis_test_env):
-    count = gis_test_env.count_industrial_sites_in_radius(22.001, 73.001, radius_m=1000.0)
+    count = gis_test_env.count_industrial_sites_in_radius(1.001, 50.001, radius_m=1000.0)
     assert count >= 1
 
 def test_historical_frp_stats_exclusion(gis_test_env):
     # Verify target observation target_hs_3 IS EXCLUDED from historical statistics calculation!
     stats = gis_test_env.get_historical_frp_stats(
-        22.000, 73.000, time_window_days=365, radius_m=1000.0, exclude_hotspot_id='target_hs_3'
+        1.000, 50.000, time_window_days=365, radius_m=1000.0, exclude_hotspot_id='target_hs_3'
     )
     assert stats["count"] == 2
     assert stats["mean"] == 45.0  # (40 + 50) / 2

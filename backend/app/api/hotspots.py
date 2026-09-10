@@ -19,6 +19,13 @@ from backend.app.utils.errors import HotspotNotFoundException
 
 router = APIRouter(prefix="/api/hotspots", tags=["Hotspots"])
 
+@router.get("/metadata", summary="Get Hotspot Data Metadata")
+def get_metadata(
+    data_source: str = Query("REAL", description="Data source mode: REAL or SYNTHETIC")
+):
+    """Retrieves available min and max dates for the given data source."""
+    return hotspot_service.get_metadata(data_source)
+
 @router.get(
     "",
     response_model=PaginatedResponse[HotspotResponse],
@@ -54,7 +61,7 @@ def list_hotspots(
     worldcover_class: Optional[int] = Query(None, description="WorldCover class code"),
     near_industry: Optional[bool] = Query(None, description="Filter events within 1km of industrial facility"),
     satellite: Optional[str] = Query(None, description="Satellite sensor filter"),
-    data_source: str = Query("REAL", description="Governance tag filter ('REAL' or 'SYNTHETIC_DEMO')"),
+    data_source: str = Query("REAL", description="Governance tag filter ('REAL' or 'REAL_LIVE')"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(50, ge=1, le=500, description="Page size (max 500)")
 ):
@@ -100,7 +107,7 @@ def get_hotspots_geojson(
     risk_level: Optional[str] = Query(None, description="Risk level filter"),
     priority: Optional[str] = Query(None, description="Priority filter"),
     review_required: Optional[bool] = Query(None, description="Human review required filter"),
-    data_source: str = Query("REAL", description="Governance tag filter ('REAL' or 'SYNTHETIC_DEMO')"),
+    data_source: str = Query("REAL", description="Governance tag filter ('REAL' or 'REAL_LIVE')"),
     limit: int = Query(500, ge=1, le=2000, description="Max feature count")
 ):
     s_date = start_date or date_from

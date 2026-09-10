@@ -26,39 +26,41 @@ def construct_weak_label(features: Dict[str, Any]) -> Dict[str, Any]:
     land_cover_cat = features.get("land_cover_category", "unknown")
 
     # 1. LIKELY_INDUSTRIAL_INCIDENT:
-    # High FRP anomaly (Z >= 2.0 or FRP >= 50 MW) near industrial facility (<= 2000m)
-    if dist_m <= 2000.0 and (frp >= 50.0 or (zscore is not None and zscore >= 2.0)):
+    # High FRP anomaly (>= 100 MW or Z >= 2.0), Day/Night present, near industrial facility (<= 2000m)
+    daynight = features.get("daynight_is_day")
+    
+    if dist_m <= 2000.0 and (frp >= 100.0 or (zscore is not None and zscore >= 2.0)):
         reason = f"High energy thermal anomaly (FRP={frp:.1f}MW, Z={zscore if zscore is not None else 0.0:.2f}) within {dist_m:.0f}m of industrial site."
         return {
             "label": LABEL_LIKELY_INDUSTRIAL_INCIDENT,
             "label_source": SOURCE_WEAK_RULE,
             "label_confidence": 0.85,
             "label_reason": reason,
-            "label_version": "v1.0"
+            "label_version": "v1.1"
         }
 
     # 2. PERSISTENT_INDUSTRIAL_HEAT:
-    # Nearby industrial facility (<= 1500m) with low FRP anomaly (Z < 1.0) and high historical recurrence (>= 3)
-    if dist_m <= 1500.0 and (zscore is None or zscore < 1.0) and count_30d >= 3:
-        reason = f"Recurring thermal activity ({count_30d} historical detections in 30d) within {dist_m:.0f}m of industrial facility."
+    # High historical recurrence (>= 5 in 30d/365d), near industrial (<= 1500m), low-medium FRP
+    if dist_m <= 1500.0 and (zscore is None or zscore < 1.0) and count_30d >= 5:
+        reason = f"Persistent recurring thermal activity ({count_30d} historical detections) within {dist_m:.0f}m of industrial facility."
         return {
             "label": LABEL_PERSISTENT_INDUSTRIAL_HEAT,
             "label_source": SOURCE_WEAK_RULE,
             "label_confidence": 0.80,
             "label_reason": reason,
-            "label_version": "v1.0"
+            "label_version": "v1.1"
         }
 
     # 3. NATURAL_WILDLAND_FIRE:
     # Non-industrial land cover (forest, vegetation, wetland) far from industrial facilities (> 5000m)
-    if dist_m > 5000.0 and land_cover_cat in ("forest", "vegetation", "wetland", "tundra") and frp >= 8.0:
-        reason = f"Thermal observation in {land_cover_cat} biome far from industrial infrastructure ({dist_m:.0f}m)."
+    if dist_m > 5000.0 and land_cover_cat in ("forest", "vegetation", "wetland", "tundra") and frp >= 8.0 and count_30d < 3:
+        reason = f"Thermal observation in {land_cover_cat} biome far from industrial infrastructure ({dist_m:.0f}m), low recurrence."
         return {
             "label": LABEL_NATURAL_WILDLAND_FIRE,
             "label_source": SOURCE_WEAK_RULE,
             "label_confidence": 0.90,
             "label_reason": reason,
-            "label_version": "v1.0"
+            "label_version": "v1.1"
         }
 
     # 4. UNLABELED / AMBIGUOUS

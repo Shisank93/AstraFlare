@@ -14,6 +14,7 @@ from backend.app.api.industrial_sites import router as industrial_sites_router
 from backend.app.api.analytics import router as analytics_router
 from backend.app.api.investigations import router as investigations_router
 from backend.app.api.ingestion import router as ingestion_router
+from backend.app.api.reports import router as reports_router
 
 # Setup logging
 setup_logging()
@@ -69,6 +70,7 @@ app.include_router(industrial_sites_router)
 app.include_router(analytics_router)
 app.include_router(investigations_router)
 app.include_router(ingestion_router)
+app.include_router(reports_router)
 
 if __name__ == "__main__":
     import uvicorn

@@ -23,15 +23,15 @@ def setup_test_events():
     # Seed test events
     db.execute_query(
         "INSERT INTO events (event_id, event_timestamp, centroid_lat, centroid_lon, geom, max_frp, mean_frp, max_brightness, observation_count, industrial_distance_m, industrial_site_count_1km, worldcover_class, data_source, risk_score, risk_level, investigation_priority, human_review_required) "
-        "VALUES ('evt_p4_test_1', '2026-09-05T10:00:00Z', 20.5, 78.5, 'POINT(78.5 20.5)', 120.0, 100.0, 340.0, 5, 200.0, 3, 50, 'REAL', 0.85, 'HIGH', 'URGENT', 1);"
+        "VALUES ('evt_p4_test_1', '2026-09-05T10:00:00Z', 20.5, 78.5, 'POINT(78.5 20.5)', 120.0, 100.0, 340.0, 5, 200.0, 3, 50, 'REAL', 0.85, 'HIGH', 'URGENT', TRUE);"
     )
     db.execute_query(
         "INSERT INTO events (event_id, event_timestamp, centroid_lat, centroid_lon, geom, max_frp, mean_frp, max_brightness, observation_count, industrial_distance_m, industrial_site_count_1km, worldcover_class, data_source, risk_score, risk_level, investigation_priority, human_review_required) "
-        "VALUES ('evt_p4_test_2', '2026-09-05T11:00:00Z', 15.0, 75.0, 'POINT(75.0 15.0)', 15.0, 15.0, 310.0, 1, 8000.0, 0, 10, 'REAL', 0.20, 'LOW', 'LOW', 1);"
+        "VALUES ('evt_p4_test_2', '2026-09-05T11:00:00Z', 15.0, 75.0, 'POINT(75.0 15.0)', 15.0, 15.0, 310.0, 1, 8000.0, 0, 10, 'REAL', 0.20, 'LOW', 'LOW', TRUE);"
     )
     db.execute_query(
         "INSERT INTO events (event_id, event_timestamp, centroid_lat, centroid_lon, geom, max_frp, mean_frp, max_brightness, observation_count, industrial_distance_m, industrial_site_count_1km, worldcover_class, data_source, risk_score, risk_level, investigation_priority, human_review_required) "
-        "VALUES ('evt_p4_demo_1', '2026-09-05T12:00:00Z', 22.0, 73.0, 'POINT(73.0 22.0)', 200.0, 200.0, 350.0, 3, 100.0, 2, 50, 'SYNTHETIC_DEMO', 0.90, 'HIGH', 'URGENT', 1);"
+        "VALUES ('evt_p4_demo_1', '2026-09-05T12:00:00Z', 22.0, 73.0, 'POINT(73.0 22.0)', 200.0, 200.0, 350.0, 3, 100.0, 2, 50, 'SYNTHETIC_DEMO', 0.90, 'HIGH', 'URGENT', TRUE);"
     )
 
     # Seed test hotspot

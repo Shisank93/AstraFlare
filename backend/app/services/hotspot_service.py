@@ -62,6 +62,8 @@ class HotspotService:
             if not check_res or check_res[0]["cnt"] == 0:
                 table_name = "hotspots"
         except Exception:
+            if self.db.is_postgres and self.db._pg_conn:
+                self.db._pg_conn.rollback()
             table_name = "hotspots"
 
         ph = "%s" if self.db.is_postgres else "?"
@@ -73,10 +75,10 @@ class HotspotService:
         lon_col = "centroid_lon" if table_name == "events" else "longitude"
         frp_col = "max_frp" if table_name == "events" else "frp"
 
-        if start_date:
+        if start_date and isinstance(start_date, str):
             conditions.append(f"{ts_col} >= {ph}")
             params.append(start_date)
-        if end_date:
+        if end_date and isinstance(end_date, str):
             end_val = f"{end_date} 23:59:59" if len(end_date) == 10 else end_date
             conditions.append(f"{ts_col} <= {ph}")
             params.append(end_val)
@@ -157,9 +159,17 @@ class HotspotService:
                 item["frp"] = float(item.get("max_frp") or 0.0)
                 item["data_source"] = item.get("data_source") or "REAL"
                 item["review_required"] = bool(item.get("human_review_required"))
-                item["risk_level"] = item.get("risk_level") or "LOW"
-                item["priority"] = item.get("investigation_priority") or "LOW"
-                item["classification"] = "LIKELY_INDUSTRIAL_INCIDENT" if item.get("risk_level") == "HIGH" else "NATURAL_WILDLAND_FIRE"
+                dist_m = float(item.get("industrial_distance_m") or 10000.0)
+                hist_cnt = int(item.get("historical_count") or 0)
+                frp_val = float(item.get("max_frp") or 0.0)
+                r_level = item.get("risk_level") or "LOW"
+
+                if (dist_m <= 1500.0 and frp_val >= 80.0) or r_level == "HIGH":
+                    item["classification"] = "LIKELY_INDUSTRIAL_INCIDENT"
+                elif dist_m <= 2500.0 or hist_cnt >= 5:
+                    item["classification"] = "PERSISTENT_INDUSTRIAL_HEAT"
+                else:
+                    item["classification"] = "NATURAL_WILDLAND_FIRE"
             else:
                 item["acq_timestamp"] = str(item["acq_timestamp"])
                 lat, lon = float(item["latitude"]), float(item["longitude"])
@@ -200,6 +210,32 @@ class HotspotService:
         """Retrieves full investigation-oriented detail object for a single hotspot."""
         self.db.connect()
         ph = "%s" if self.db.is_postgres else "?"
+        
+        # If ID is an event ID, query events table directly first
+        if str(hotspot_id).startswith("evt_"):
+            try:
+                evt_res = self.db.execute_query(f"SELECT * FROM events WHERE event_id = {ph};", (hotspot_id,))
+                if evt_res:
+                    evt = dict(evt_res[0])
+                    evt["id"] = evt["event_id"]
+                    evt["latitude"] = float(evt.get("centroid_lat") or 0.0)
+                    evt["longitude"] = float(evt.get("centroid_lon") or 0.0)
+                    evt["acq_timestamp"] = str(evt.get("event_timestamp", ""))
+                    evt["satellite"] = "VIIRS"
+                    evt["frp"] = float(evt.get("max_frp") or 0.0)
+                    evt["brightness"] = float(evt.get("max_brightness") or 300.0)
+                    evt["historical_count_30d"] = int(evt.get("historical_count") or 0)
+                    evt["frp_anomaly_zscore"] = float(evt.get("historical_anomaly_zscore") or 0.0)
+                    evt["is_built_up"] = 1 if evt.get("worldcover_class") == 50 else 0
+                    evt["industrial_distance_m"] = float(evt.get("industrial_distance_m") or 10000.0)
+                    evt["industrial_count_1km"] = int(evt.get("industrial_site_count_1km") or 0)
+                    evt["industrial_count_5km"] = int(evt.get("industrial_site_count_5km") or 0)
+                    evt["land_cover_code"] = int(evt.get("worldcover_class") or 40)
+                    evt["land_cover_name"] = "Built-up / Industrial" if evt.get("worldcover_class") == 50 else ("Tree cover" if evt.get("worldcover_class") == 10 else "Cropland")
+                    return evt
+            except Exception as e:
+                logger.warning(f"Events table query error: {e}")
+
         res = self.db.execute_query(f"SELECT * FROM hotspots WHERE id = {ph};", (hotspot_id,))
         if not res:
             try:
@@ -213,6 +249,14 @@ class HotspotService:
                     evt["satellite"] = "VIIRS"
                     evt["frp"] = float(evt.get("max_frp") or 0.0)
                     evt["brightness"] = float(evt.get("max_brightness") or 300.0)
+                    evt["historical_count_30d"] = int(evt.get("historical_count") or 0)
+                    evt["frp_anomaly_zscore"] = float(evt.get("historical_anomaly_zscore") or 0.0)
+                    evt["is_built_up"] = 1 if evt.get("worldcover_class") == 50 else 0
+                    evt["industrial_distance_m"] = float(evt.get("industrial_distance_m") or 10000.0)
+                    evt["industrial_count_1km"] = int(evt.get("industrial_site_count_1km") or 0)
+                    evt["industrial_count_5km"] = int(evt.get("industrial_site_count_5km") or 0)
+                    evt["land_cover_code"] = int(evt.get("worldcover_class") or 40)
+                    evt["land_cover_name"] = "Built-up / Industrial" if evt.get("worldcover_class") == 50 else ("Tree cover" if evt.get("worldcover_class") == 10 else "Cropland")
                     return evt
             except Exception as e:
                 logger.warning(f"Events table query error: {e}")
@@ -363,5 +407,35 @@ class HotspotService:
             "anomaly_status": hs_detail.get("anomaly_status", "VALID"),
             "nearby_historical_detections": history_items
         }
+
+    def get_metadata(self, data_source: str = "REAL") -> Dict[str, Any]:
+        """Returns metadata like min/max available dates for the given data_source."""
+        self.db.connect()
+        table_name = "events"
+        try:
+            check_res = self.db.execute_query(f"SELECT COUNT(*) as cnt FROM {table_name};")
+            if not check_res or check_res[0]["cnt"] == 0:
+                table_name = "hotspots"
+        except Exception:
+            self.db.connection.rollback()
+            table_name = "hotspots"
+            
+        ts_col = "event_timestamp" if table_name == "events" else "acq_timestamp"
+        ph = "%s" if self.db.is_postgres else "?"
+        query = f"SELECT MIN({ts_col}) as min_date, MAX({ts_col}) as max_date FROM {table_name} WHERE data_source = {ph}"
+        
+        try:
+            res = self.db.execute_query(query, (data_source,))
+            if res and res[0]["min_date"] and res[0]["max_date"]:
+                # The dates might be datetime objects or strings depending on DB
+                min_str = str(res[0]["min_date"])[:10]
+                max_str = str(res[0]["max_date"])[:10]
+                return {"min_date": min_str, "max_date": max_str}
+        except Exception as e:
+            logger.error(f"Failed to fetch metadata: {e}")
+            self.db.connection.rollback()
+            
+        # Fallback to sensible defaults
+        return {"min_date": "2024-01-01", "max_date": "2025-12-31"}
 
 hotspot_service = HotspotService()

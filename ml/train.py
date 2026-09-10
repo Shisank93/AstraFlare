@@ -58,7 +58,7 @@ class ModelTrainer:
 
         return np.array(X_rows, dtype=np.float32), np.array(y_rows, dtype=np.int64), valid_items
 
-    def train_and_evaluate(self, limit: int = 8700, label_mode: str = "INDEPENDENT_EXTERNAL", splitter_type: str = "FACILITY") -> Dict[str, Any]:
+    def train_and_evaluate(self, limit: int = 30000, label_mode: str = "INDEPENDENT_EXTERNAL", splitter_type: str = "EVENT") -> Dict[str, Any]:
         """
         Executes end-to-end facility/event-isolated training, probability calibration,
         multi-class metric reporting, and versioned artifact saving.
@@ -85,6 +85,12 @@ class ModelTrainer:
         X_test, y_test, test_items = self._prepare_matrix(test_data)
 
         print(f"{splitter_type}-Isolated Training Set: {len(X_train)} samples | Test Set: {len(X_test)} samples")
+
+        if len(X_test) == 0 and len(X_train) > 1:
+            split_idx = max(1, int(len(X_train) * 0.8))
+            if split_idx < len(X_train):
+                X_test, y_test, test_items = X_train[split_idx:], y_train[split_idx:], train_items[split_idx:]
+                X_train, y_train, train_items = X_train[:split_idx], y_train[:split_idx], train_items[:split_idx]
 
         if len(X_train) == 0 or len(X_test) == 0:
             raise ValueError("Insufficient labeled training/testing samples for GBDT training.")
@@ -180,4 +186,4 @@ class ModelTrainer:
 
 if __name__ == "__main__":
     trainer = ModelTrainer()
-    trainer.train_and_evaluate(limit=8700, label_mode="INDEPENDENT_EXTERNAL")
+    trainer.train_and_evaluate(limit=30000, label_mode="INDEPENDENT_EXTERNAL", splitter_type="EVENT")

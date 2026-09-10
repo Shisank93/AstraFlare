@@ -11,6 +11,9 @@ def demo_test_env():
     db = DatabaseManager()
     db.connect()
 
+    # Clean up any leftover test records
+    db.execute_query("DELETE FROM hotspots WHERE id IN ('real_hs_100', 'demo_hs_100');")
+
     # Insert one REAL hotspot and one SYNTHETIC_DEMO hotspot
     db.execute_query(
         "INSERT INTO hotspots (id, latitude, longitude, geom, acq_timestamp, satellite, frp, data_source) "
@@ -27,8 +30,8 @@ def demo_test_env():
     db.close()
 
 def test_data_source_tag_isolation(demo_test_env):
-    real_records = demo_test_env.execute_query("SELECT * FROM hotspots WHERE data_source = 'REAL';")
-    demo_records = demo_test_env.execute_query(f"SELECT * FROM hotspots WHERE data_source = '{settings.DATA_SOURCE_DEMO}';")
+    real_records = demo_test_env.execute_query("SELECT id FROM hotspots WHERE id IN ('real_hs_100', 'demo_hs_100') AND data_source = 'REAL';")
+    demo_records = demo_test_env.execute_query(f"SELECT id FROM hotspots WHERE id IN ('real_hs_100', 'demo_hs_100') AND data_source = '{settings.DATA_SOURCE_DEMO}';")
 
     real_ids = [r["id"] for r in real_records]
     demo_ids = [r["id"] for r in demo_records]

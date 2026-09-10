@@ -6,6 +6,15 @@ import {
   MapPin,
   Flame,
   Send,
+  FileText,
+  Brain,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Clock,
+  ShieldCheck,
+  Building2
 } from 'lucide-react';
 import { api } from '../../api/client';
 import type {
@@ -18,18 +27,19 @@ import type {
   ClassificationType,
 } from '../../types/api';
 import { Badge } from '../../components/common/Badge';
-import { Button } from '../../components/common/Button';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { ErrorState } from '../../components/common/ErrorState';
 
 interface InvestigationPanelProps {
   hotspotId: string | null;
   onReviewSubmitted?: () => void;
+  onGenerateReport?: (hotspotId: string) => void;
 }
 
 export const InvestigationPanel: React.FC<InvestigationPanelProps> = ({
   hotspotId,
   onReviewSubmitted,
+  onGenerateReport,
 }) => {
   const [detail, setDetail] = useState<HotspotDetail | null>(null);
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
@@ -39,6 +49,7 @@ export const InvestigationPanel: React.FC<InvestigationPanelProps> = ({
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [showModelCard, setShowModelCard] = useState<boolean>(false);
 
   // Review Form State
   const [reviewerId, setReviewerId] = useState<string>('ANALYST-01');
@@ -133,317 +144,399 @@ export const InvestigationPanel: React.FC<InvestigationPanelProps> = ({
     return <ErrorState message={error || 'Hotspot data not available.'} />;
   }
 
+  // Industrial distance formatting
+  const distM = detail.industrial_distance_m != null ? detail.industrial_distance_m : 10000;
+  const distStr = distM >= 1000 ? `${(distM / 1000).toFixed(1)} km` : `${distM.toFixed(0)} m`;
+  const isNearIndustry = distM <= 3000;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Investigation Header */}
-      <div className="panel-header" style={{ backgroundColor: 'var(--accent-navy)', color: '#ffffff' }}>
+      <div className="panel-header" style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#93c5fd' }}>
-            Selected Hotspot Investigation
+          <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#38bdf8', fontWeight: 700 }}>
+            EVENT INVESTIGATION DOSSIER
           </div>
-          <div style={{ fontSize: '15px', fontWeight: 700 }}>{detail.id}</div>
+          <div style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'monospace', color: '#f8fafc' }}>
+            {detail.id}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '6px' }}>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {onGenerateReport && (
+            <button
+              onClick={() => onGenerateReport(detail.id)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 8px',
+                fontSize: '11px',
+                fontWeight: 600,
+                backgroundColor: '#1e293b',
+                color: '#38bdf8',
+                border: '1px solid #334155',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              <FileText size={12} /> Dossier
+            </button>
+          )}
           <Badge riskLevel={detail.risk_level} />
-          {detail.review_required && <Badge reviewRequired={true} text="REVIEW REQUIRED" />}
         </div>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        
         {/* 1. Observation Telemetry Summary */}
-        <div className="detail-section">
-          <div className="detail-header">
-            <span>Satellite Observation Telemetry</span>
-            <span className="badge badge-neutral">{detail.data_source}</span>
+        <div style={{ backgroundColor: '#ffffff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+            <span>Satellite Telemetry</span>
+            <span style={{ color: '#0f172a', fontWeight: 600 }}>{detail.data_source}</span>
           </div>
-          <div className="info-grid">
-            <div className="info-item">
-              <span className="info-item-label">Acquisition Time</span>
-              <span className="info-item-value">
-                {new Date(detail.acq_timestamp).toLocaleDateString()} {new Date(detail.acq_timestamp).toLocaleTimeString()}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '12px' }}>
+            <div>
+              <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>Acquisition Time</span>
+              <span style={{ fontWeight: 600, color: '#0f172a' }}>
+                {detail.acq_timestamp?.split('T')[0]} {detail.acq_timestamp?.split('T')[1]?.substring(0, 5)}
               </span>
             </div>
-            <div className="info-item">
-              <span className="info-item-label">Satellite Sensor</span>
-              <span className="info-item-value">{detail.satellite} {detail.instrument ? `(${detail.instrument})` : ''}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-item-label">Fire Radiative Power</span>
-              <span className="info-item-value" style={{ color: '#dc2626' }}>
-                <Flame size={13} style={{ display: 'inline', marginRight: '3px' }} />
-                {detail.frp} MW
+            <div>
+              <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>FRP / Intensity</span>
+              <span style={{ fontWeight: 700, color: '#ea580c' }}>
+                <Flame size={12} style={{ display: 'inline', marginRight: '2px' }} />
+                {detail.frp?.toFixed(1)} MW
               </span>
             </div>
-            <div className="info-item">
-              <span className="info-item-label">Coordinates (WGS84)</span>
-              <span className="info-item-value" style={{ fontSize: '12px' }}>
-                {detail.latitude.toFixed(4)}°, {detail.longitude.toFixed(4)}°
+            <div>
+              <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>Coordinates</span>
+              <span style={{ fontWeight: 600, color: '#0f172a' }}>
+                {detail.latitude?.toFixed(4)}°, {detail.longitude?.toFixed(4)}°
               </span>
             </div>
-            {detail.brightness && (
-              <div className="info-item">
-                <span className="info-item-label">Brightness Temp</span>
-                <span className="info-item-value">{detail.brightness} K</span>
-              </div>
-            )}
-            {detail.confidence && (
-              <div className="info-item">
-                <span className="info-item-label">FIRMS Confidence</span>
-                <span className="info-item-value">{detail.confidence}</span>
-              </div>
-            )}
+            <div>
+              <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>Satellite</span>
+              <span style={{ fontWeight: 600, color: '#0f172a' }}>
+                {detail.satellite}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* 2. Classification & Model Predictions */}
+        {/* 2. ML Classification & Calibrated Probability */}
         {prediction && (
-          <div className="detail-section">
-            <div className="detail-header">
-              <span>ML Classification Prediction</span>
-              <span className="badge badge-neutral" style={{ fontWeight: 700, backgroundColor: '#e0e7ff', color: '#3730a3' }}>
-                {prediction.model_status}
+          <div style={{ backgroundColor: '#ffffff', padding: '14px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Brain size={14} color="#2563eb" /> ML Classification Prediction
+              </span>
+              <span
+                style={{
+                  padding: '2px 7px',
+                  fontSize: '9px',
+                  fontWeight: 700,
+                  backgroundColor: '#e0e7ff',
+                  color: '#3730a3',
+                  borderRadius: '3px',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                RESEARCH BASELINE
               </span>
             </div>
 
-            {!prediction.is_ml_prediction ? (
-              <div style={{ marginBottom: '12px', padding: '16px', backgroundColor: 'var(--bg-surface-subtle)', borderRadius: '6px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>
-                  ML Prediction Unavailable
-                </div>
-                {prediction.reference_label && (
-                  <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-color)', textAlign: 'left' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Reference Label</span>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '4px' }}>
-                      {prediction.reference_label.replace(/_/g, ' ')}
-                    </div>
-                    {prediction.reference_provenance && (
-                      <span className="badge badge-neutral" style={{ fontSize: '10px', marginTop: '4px' }}>
-                        Provenance: {prediction.reference_provenance}
-                      </span>
-                    )}
-                  </div>
-                )}
+            {/* Prediction & Confidence Block */}
+            <div style={{ padding: '10px', backgroundColor: '#f8fafc', borderRadius: '5px', border: '1px solid #e2e8f0', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <span style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
+                  Predicted Category
+                </span>
+                <span
+                  style={{
+                    padding: '2px 6px',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    borderRadius: '3px',
+                    backgroundColor:
+                      prediction.confidence_status === 'HIGH CONFIDENCE'
+                        ? '#dcfce7'
+                        : prediction.confidence_status === 'MODERATE CONFIDENCE'
+                        ? '#dbeafe'
+                        : '#fef3c7',
+                    color:
+                      prediction.confidence_status === 'HIGH CONFIDENCE'
+                        ? '#15803d'
+                        : prediction.confidence_status === 'MODERATE CONFIDENCE'
+                        ? '#1d4ed8'
+                        : '#b45309',
+                  }}
+                >
+                  {prediction.confidence_status || (prediction.review_required ? 'LOW CONFIDENCE — ANALYST REVIEW' : 'HIGH CONFIDENCE')}
+                </span>
               </div>
-            ) : (
-              <>
-                <div style={{ marginBottom: '12px', padding: '10px 12px', backgroundColor: 'var(--bg-surface-subtle)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Predicted Class</span>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-blue)' }}>
-                      Confidence: {prediction.confidence != null ? (prediction.confidence * 100).toFixed(1) : 0}%
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                    {prediction.predicted_class ? prediction.predicted_class.replace(/_/g, ' ') : 'UNAVAILABLE'}
-                  </div>
-                </div>
 
-                {/* Probability Breakdown */}
-                {prediction.probabilities && (
-                  <div style={{ marginTop: '8px' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
-                      Class Probability Distribution
-                    </div>
-                    {Object.entries(prediction.probabilities).map(([clsName, prob]) => (
-                      <div key={clsName} className="prob-bar-container">
-                        <div className="prob-label-row">
-                          <span>{clsName.replace(/_/g, ' ')}</span>
-                          <span style={{ fontWeight: 600 }}>{(Number(prob) * 100).toFixed(1)}%</span>
-                        </div>
-                        <div className="prob-bar-track">
-                          <div
-                            className="prob-bar-fill"
-                            style={{
-                              width: `${Number(prob) * 100}%`,
-                              backgroundColor: clsName === prediction.predicted_class ? 'var(--accent-blue)' : '#cbd5e1',
-                            }}
-                          />
-                        </div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                {prediction.predicted_class ? prediction.predicted_class.replace(/_/g, ' ') : 'UNLABELED'}
+              </div>
+
+              <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 700, marginTop: '2px' }}>
+                Calibrated Confidence: {prediction.confidence != null ? `${(prediction.confidence * 100).toFixed(1)}%` : 'N/A'}
+              </div>
+
+              {prediction.abstention_reason && (
+                <div style={{ fontSize: '10px', color: '#64748b', fontStyle: 'italic', marginTop: '4px' }}>
+                  {prediction.abstention_reason}
+                </div>
+              )}
+            </div>
+
+            {/* Calibrated Probability Distribution */}
+            {prediction.probabilities && (
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>
+                  Probability Distribution
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {Object.entries(prediction.probabilities).map(([cls, prob]: [string, any]) => (
+                    <div key={cls}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '2px' }}>
+                        <span style={{ color: '#334155', fontWeight: 500 }}>{cls.replace(/_/g, ' ')}</span>
+                        <span style={{ fontWeight: 700, color: cls === prediction.predicted_class ? '#2563eb' : '#64748b' }}>
+                          {(Number(prob) * 100).toFixed(1)}%
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </>
+                      <div style={{ height: '6px', backgroundColor: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div
+                          style={{
+                            width: `${Number(prob) * 100}%`,
+                            height: '100%',
+                            backgroundColor: cls === prediction.predicted_class ? '#2563eb' : '#cbd5e1',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
 
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '8px' }}>
-              {prediction.limitations}
+            {/* Why this prediction? TreeSHAP / Explanations */}
+            {prediction.top_contributing_features && prediction.top_contributing_features.length > 0 && (
+              <div style={{ padding: '10px', backgroundColor: '#f8fafc', borderRadius: '5px', border: '1px solid #e2e8f0', marginBottom: '10px' }}>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', marginBottom: '4px' }}>
+                  Why This Prediction? (Top Features)
+                </div>
+                <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '11px', color: '#334155', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  {prediction.top_contributing_features.slice(0, 3).map((f: any, idx: number) => (
+                    <li key={idx}>
+                      <strong>{f.feature}:</strong> {f.statement || f.value}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Supplementary Industrial Anomaly Assessment Card (Item 12) */}
+            {prediction.industrial_anomaly_score != null && (
+              <div style={{ padding: '10px', backgroundColor: '#f1f5f9', borderRadius: '5px', border: '1px solid #e2e8f0', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>
+                    Industrial Anomaly Assessment
+                  </span>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: prediction.industrial_anomaly_level === 'HIGH' ? '#dc2626' : '#475569' }}>
+                    Tier: {prediction.industrial_anomaly_level || 'LOW'} (Score: {prediction.industrial_anomaly_score.toFixed(3)})
+                  </span>
+                </div>
+                <div style={{ fontSize: '10px', color: '#64748b' }}>
+                  Unsupervised multi-factor signal (FRP deviation, recurrence, proximity). Supplementary evidence indicator.
+                </div>
+              </div>
+            )}
+
+            {/* Compact Expandable Research Status Card (Item 14) */}
+            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
+              <button
+                onClick={() => setShowModelCard(!showModelCard)}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  background: 'none',
+                  border: 'none',
+                  padding: '4px 0',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: '#475569',
+                  cursor: 'pointer',
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Info size={12} color="#2563eb" /> Model Status & Training Partition Stats
+                </span>
+                {showModelCard ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+              </button>
+
+              {showModelCard && (
+                <div style={{ marginTop: '8px', padding: '10px', backgroundColor: '#f8fafc', borderRadius: '5px', border: '1px solid #e2e8f0', fontSize: '11px', color: '#334155' }}>
+                  <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>
+                    Research Baseline — Data Limited
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginBottom: '6px' }}>
+                    <div>Training: <strong>54,386 rows</strong></div>
+                    <div>Test: <strong>14,289 rows</strong></div>
+                    <div>Facility Overlap: <strong>0</strong></div>
+                    <div>Event Overlap: <strong>0</strong></div>
+                    <div>Macro F1: <strong>0.6667</strong></div>
+                    <div>Wildland F1: <strong>1.0</strong></div>
+                    <div>Persistent Heat F1: <strong>1.0</strong></div>
+                    <div>Industrial Incident: <strong>0.0 (Rare Class)</strong></div>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '10px', lineHeight: '1.4', color: '#64748b', fontStyle: 'italic' }}>
+                    The current model demonstrates strong separation for well-represented classes. Industrial incident classification remains data-limited because verified incidents are rare. Predictions should therefore be interpreted with evidence and analyst review.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* 3. Operational Risk Score */}
+        {/* 3. Operational Prioritization Risk (Decoupled from ML) */}
         {risk && (
-          <div className="detail-section">
-            <div className="detail-header">
-              <span>Operational Prioritization Risk</span>
+          <div style={{ backgroundColor: '#ffffff', padding: '14px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <AlertTriangle size={14} color="#ea580c" /> Operational Prioritization Risk
+              </span>
               <Badge riskLevel={risk.risk_level} />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', backgroundColor: 'var(--bg-surface-subtle)', borderRadius: '6px', marginBottom: '12px' }}>
-              <div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Prioritization Score</div>
-                <div style={{ fontSize: '20px', fontWeight: 800, color: risk.risk_level === 'HIGH' ? '#dc2626' : risk.risk_level === 'MEDIUM' ? '#d97706' : '#16a34a' }}>
-                  {risk.risk_score.toFixed(2)} / 1.00
-                </div>
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', maxWidth: '200px', textAlign: 'right' }}>
-                {risk.explanation}
-              </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
+              <span style={{ fontSize: '11px', color: '#64748b' }}>Queue Risk Score:</span>
+              <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+                {risk.risk_score.toFixed(3)}
+              </span>
             </div>
 
-            {/* Factor breakdown */}
-            <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
-              Contributing Risk Factors
-            </div>
-            {risk.contributing_factors.map((factor, idx) => (
-              <div key={idx} style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-color)', fontSize: '12px', display: 'flex', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontWeight: 600 }}>{factor.factor.replace(/_/g, ' ')}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{factor.description}</div>
-                </div>
-                <div style={{ textAlign: 'right', fontWeight: 600 }}>
-                  {(factor.score * 100).toFixed(0)}%
-                  <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block' }}>w: {factor.weight}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 4. Structured Evidence */}
-        {evidence && (
-          <div className="detail-section">
-            <div className="detail-header">
-              <span>Structured Evidence Engine ("WHY?")</span>
-              <span className="badge badge-neutral">{evidence.verification_status}</span>
-            </div>
-
-            {evidence.evidence_items.map((evItem, idx) => (
-              <div key={idx} style={{ padding: '8px 10px', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '6px', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 600, marginBottom: '2px' }}>
-                  <span>{evItem.evidence_type.replace(/_/g, ' ')}</span>
-                  <span className="badge badge-neutral" style={{ fontSize: '10px' }}>Source: {evItem.source}</span>
-                </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                  {evItem.interpretation}
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Feature: <code>{evItem.feature_name}</code> = <strong>{evItem.value}</strong></span>
-                  <span>Confidence: {(evItem.confidence * 100).toFixed(0)}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 5. Historical Context */}
-        {history && (
-          <div className="detail-section">
-            <div className="detail-header">
-              <span>Historical Recurrence Telemetry</span>
-            </div>
-
-            <div className="info-grid" style={{ marginBottom: '12px' }}>
-              <div className="info-item">
-                <span className="info-item-label">30-Day Detections (1km)</span>
-                <span className="info-item-value">{history.recurrence_count_30d}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-item-label">Historical Mean FRP</span>
-                <span className="info-item-value">{history.historical_mean_frp ? `${history.historical_mean_frp.toFixed(1)} MW` : 'N/A'}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-item-label">FRP Anomaly Z-Score</span>
-                <span className="info-item-value">{history.frp_anomaly_zscore ? history.frp_anomaly_zscore.toFixed(2) : 'N/A'}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-item-label">365-Day Recurrence</span>
-                <span className="info-item-value">{history.recurrence_count_365d}</span>
-              </div>
-            </div>
-
-            {history.nearby_historical_detections.length > 0 && (
-              <div>
-                <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px' }}>
-                  Recent Historical Detection Sequence
-                </div>
-                {history.nearby_historical_detections.slice(0, 5).map((det) => (
-                  <div key={det.id} className="timeline-item">
-                    <div className="timeline-dot" />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                        <span style={{ fontWeight: 600 }}>{det.id}</span>
-                        <span style={{ color: '#dc2626', fontWeight: 600 }}>{det.frp} MW</span>
-                      </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {new Date(det.acq_timestamp).toLocaleDateString()} | Dist: {det.distance_m.toFixed(0)}m
-                      </div>
+            {risk.contributing_factors && risk.contributing_factors.length > 0 && (
+              <div style={{ marginTop: '8px', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                  Contributing Operational Factors
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  {risk.contributing_factors.map((f, idx) => (
+                    <div key={idx} style={{ fontSize: '11px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#334155' }}>{f.factor}:</span>
+                      <span style={{ fontWeight: 600, color: '#0f172a' }}>{f.description}</span>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
+            
+            <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', marginTop: '6px' }}>
+              Operational risk determines queue urgency; it is independent of ML classification.
+            </div>
           </div>
         )}
 
-        {/* 6. Human-in-the-Loop Analyst Review Form */}
-        <div className="detail-section" style={{ backgroundColor: detail.review_required ? '#f5f3ff' : 'var(--bg-surface)' }}>
-          <div className="detail-header">
-            <span>Human-in-the-Loop Review</span>
-            <span className="badge badge-neutral">Status: {detail.review_status || 'PENDING'}</span>
+        {/* 4. Multi-Layer Evidence Section */}
+        {evidence && (
+          <div style={{ backgroundColor: '#ffffff', padding: '14px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <ShieldCheck size={14} color="#059669" /> Multi-Layer Evidence Synthesis
+            </div>
+
+            {/* Industrial Proximity Tile */}
+            <div style={{ padding: '8px', backgroundColor: isNearIndustry ? '#fee2e2' : '#f8fafc', borderRadius: '4px', border: `1px solid ${isNearIndustry ? '#fecaca' : '#e2e8f0'}`, marginBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: isNearIndustry ? '#991b1b' : '#334155' }}>
+                <Building2 size={13} />
+                Industrial Proximity: {distStr} ({isNearIndustry ? 'Near Industry' : 'Low Industrial Proximity'})
+              </div>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
+                Nearest Site: {detail.nearest_industrial_name || 'No mapped facilities within 5km radius'}
+              </div>
+            </div>
+
+            {/* Evidence Statements */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {evidence.evidence_items.map((ev, idx) => (
+                <div key={idx} style={{ fontSize: '11px', padding: '6px', backgroundColor: '#f8fafc', borderRadius: '4px', border: '1px solid #f1f5f9' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', fontWeight: 600, marginBottom: '1px' }}>
+                    <span>{ev.category?.replace(/_/g, ' ') || ev.evidence_type?.replace(/_/g, ' ')}</span>
+                    <span style={{ color: '#0f172a' }}>{ev.value}</span>
+                  </div>
+                  <div style={{ color: '#64748b', fontSize: '10px' }}>{ev.interpretation}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 5. Historical 30-Day Recurrence Baseline */}
+        {history && (
+          <div style={{ backgroundColor: '#ffffff', padding: '14px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Clock size={14} color="#475569" /> Historical Recurrence Baseline
+            </div>
+            <div style={{ fontSize: '11px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', color: '#334155' }}>
+              <div>30-Day Detections: <strong>{history.recurrence_count_30d}</strong></div>
+              <div>365-Day Detections: <strong>{history.recurrence_count_365d}</strong></div>
+              <div>FRP Anomaly: <strong>{history.frp_anomaly_zscore ? `+${history.frp_anomaly_zscore.toFixed(2)} sigma` : '0.00 sigma'}</strong></div>
+              <div>Mean Baseline FRP: <strong>{history.historical_mean_frp ? `${history.historical_mean_frp.toFixed(1)} MW` : 'N/A'}</strong></div>
+            </div>
+          </div>
+        )}
+
+        {/* 6. Human Analyst Review Action Form */}
+        <div style={{ backgroundColor: '#ffffff', padding: '14px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
+            Analyst Investigation & Decision
           </div>
 
-          {detail.review_required && (
-            <div style={{ padding: '10px 12px', backgroundColor: '#edd5ff', border: '1px solid #c084fc', borderRadius: '6px', marginBottom: '12px', color: '#581c87', fontSize: '12px' }}>
-              <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
-                <ShieldAlert size={14} /> HUMAN INVESTIGATION RECOMMENDED
-              </div>
-              Model prediction confidence is below operational threshold or abstention rule was triggered. Analyst review required before action.
-            </div>
-          )}
-
           {reviewSuccessMsg && (
-            <div style={{ padding: '8px 12px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', borderRadius: '6px', fontSize: '12px', marginBottom: '12px' }}>
-              <CheckCircle2 size={13} style={{ display: 'inline', marginRight: '4px' }} />
+            <div style={{ padding: '8px', backgroundColor: '#dcfce7', color: '#15803d', borderRadius: '4px', fontSize: '11px', marginBottom: '8px', fontWeight: 600 }}>
               {reviewSuccessMsg}
             </div>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Analyst ID</span>
+              <label style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                Analyst ID
+              </label>
               <input
                 type="text"
-                className="filter-input"
                 value={reviewerId}
                 onChange={(e) => setReviewerId(e.target.value)}
-                placeholder="Enter Analyst ID (e.g. ANALYST-01)"
+                style={{ width: '100%', padding: '5px 8px', fontSize: '11px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
               />
             </div>
 
             <div>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Investigation Notes</span>
+              <label style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                Investigation Findings / Notes
+              </label>
               <textarea
-                className="filter-input"
-                style={{ height: '60px', resize: 'vertical' }}
                 value={reviewNotes}
                 onChange={(e) => setReviewNotes(e.target.value)}
                 placeholder="Record ground truth context, facility details, or escalation reasons..."
+                style={{ width: '100%', height: '50px', padding: '5px 8px', fontSize: '11px', border: '1px solid #cbd5e1', borderRadius: '4px', resize: 'vertical' }}
               />
             </div>
 
-            {/* Optional Correction selector */}
+            {/* Optional Correction Selector */}
             <div>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                Select Corrected Label (Required if clicking Correct)
-              </span>
+              <label style={{ fontSize: '10px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
+                Corrected Class (If Correcting)
+              </label>
               <select
-                className="filter-select"
                 value={selectedCorrectedClass}
                 onChange={(e) => setSelectedCorrectedClass(e.target.value as ClassificationType)}
+                style={{ width: '100%', padding: '5px 8px', fontSize: '11px', border: '1px solid #cbd5e1', borderRadius: '4px', backgroundColor: '#ffffff' }}
               >
-                <option value="">-- Choose Correct Classification --</option>
+                <option value="">-- Choose Classification --</option>
                 <option value="LIKELY_INDUSTRIAL_INCIDENT">Likely Industrial Incident</option>
                 <option value="PERSISTENT_INDUSTRIAL_HEAT">Persistent Industrial Heat</option>
                 <option value="NATURAL_WILDLAND_FIRE">Natural Wildland Fire</option>
@@ -451,44 +544,35 @@ export const InvestigationPanel: React.FC<InvestigationPanelProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '4px' }}>
-              <Button
-                variant="success"
-                size="sm"
-                loading={submittingReview}
-                icon={<CheckCircle2 size={12} />}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '4px' }}>
+              <button
                 onClick={() => handleSubmitReview('CONFIRMED')}
+                disabled={submittingReview}
+                style={{ padding: '6px', fontSize: '11px', fontWeight: 700, backgroundColor: '#15803d', color: '#ffffff', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
               >
-                Confirm
-              </Button>
-              <Button
-                variant="danger"
-                size="sm"
-                loading={submittingReview}
-                icon={<XCircle size={12} />}
+                <CheckCircle2 size={12} /> Confirm
+              </button>
+              <button
                 onClick={() => handleSubmitReview('REJECTED')}
+                disabled={submittingReview}
+                style={{ padding: '6px', fontSize: '11px', fontWeight: 700, backgroundColor: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
               >
-                Reject
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                loading={submittingReview}
-                icon={<ShieldAlert size={12} />}
+                <XCircle size={12} /> Reject
+              </button>
+              <button
                 onClick={() => handleSubmitReview('ESCALATED')}
+                disabled={submittingReview}
+                style={{ padding: '6px', fontSize: '11px', fontWeight: 700, backgroundColor: '#d97706', color: '#ffffff', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
               >
-                Escalate
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                loading={submittingReview}
-                disabled={!selectedCorrectedClass}
-                icon={<Send size={12} />}
+                <ShieldAlert size={12} /> Escalate
+              </button>
+              <button
                 onClick={() => handleSubmitReview('CORRECTED')}
+                disabled={submittingReview || !selectedCorrectedClass}
+                style={{ padding: '6px', fontSize: '11px', fontWeight: 700, backgroundColor: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
               >
-                Correct
-              </Button>
+                <Send size={12} /> Correct
+              </button>
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@
   "model_version": "v1.0",
   "model_name": "RandomForestClassifier",
   "model_status": "RESEARCH BASELINE \u2014 DATA-LIMITED",
-  "training_date": "2026-09-08 09:28:26",
+  "training_date": "2026-09-10 02:03:55",
   "isolation_audit": {
     "splitter_name": "FacilityGroupSplitter",
     "train_rows": 54386,

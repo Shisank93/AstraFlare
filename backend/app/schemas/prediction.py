@@ -1,7 +1,7 @@
 """
 Prediction Pydantic Schemas for AstraFlare ML Baseline Inference.
 """
-from typing import Optional, Dict
+from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field
 
 class ClassProbabilities(BaseModel):
@@ -22,3 +22,10 @@ class PredictionResponse(BaseModel):
     is_ml_prediction: bool = Field(False, description="True if a genuine ML model generated this prediction")
     reference_label: Optional[str] = Field(None, description="Weak rule/reference label if ML prediction is absent")
     reference_provenance: Optional[str] = Field(None, description="Provenance of reference label")
+    confidence_status: Optional[str] = Field(None, description="HIGH CONFIDENCE, MODERATE CONFIDENCE, or LOW CONFIDENCE — ANALYST REVIEW")
+    abstention_reason: Optional[str] = Field(None, description="Operational explanation for abstention decision")
+    industrial_anomaly_score: Optional[float] = Field(None, description="Unsupervised industrial anomaly assessment score [0.0, 1.0]")
+    industrial_anomaly_level: Optional[str] = Field(None, description="HIGH, MODERATE, or LOW industrial anomaly tier")
+    top_contributing_features: Optional[list] = Field(default_factory=list, description="Top TreeSHAP / operational contributing features")
+    model_metadata: Optional[Dict[str, Any]] = Field(None, description="Dynamic model metadata including isolation and training stats")
+

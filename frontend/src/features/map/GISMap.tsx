@@ -79,31 +79,35 @@ export const GISMap: React.FC<GISMapProps> = ({
         const riskLevel = (props.risk_level || 'LOW').toUpperCase();
         const isReviewRequired = props.review_required;
 
-        let color = '#16a34a'; // LOW: Green
-        let fillColor = '#dcfce7';
+        let color = '#10b981'; // LOW: Emerald Green (Natural Wildland Fire)
+        let fillColor = '#34d399';
+        let classLabel = 'NATURAL WILDLAND FIRE';
 
         if (riskLevel === 'HIGH') {
-          color = '#dc2626'; // HIGH: Red
-          fillColor = '#fee2e2';
+          color = '#ef4444'; // HIGH: Vibrant Red (Industrial Incident)
+          fillColor = '#f87171';
+          classLabel = 'LIKELY INDUSTRIAL INCIDENT';
         } else if (riskLevel === 'MEDIUM') {
-          color = '#d97706'; // MEDIUM: Amber
-          fillColor = '#fef3c7';
+          color = '#f59e0b'; // MEDIUM: Amber Flame (Persistent Heat / High Recurrence)
+          fillColor = '#fbbf24';
+          classLabel = 'PERSISTENT INDUSTRIAL HEAT';
         }
 
-        if (isReviewRequired) {
-          color = '#7c3aed'; // REVIEW REQUIRED: Purple accent
+        if (props.classification) {
+          classLabel = props.classification.replace(/_/g, ' ');
         }
 
-        const radius = isSelected ? 10 : isReviewRequired ? 8 : 6;
-        const strokeWidth = isSelected ? 3 : 1.5;
+        const radius = isSelected ? 11 : isReviewRequired ? 8 : (riskLevel === 'HIGH' ? 8 : (riskLevel === 'MEDIUM' ? 7 : 6));
+        const strokeWidth = isSelected ? 3.5 : (riskLevel === 'HIGH' ? 2.5 : 1.5);
+        const strokeColor = isSelected ? '#ffffff' : (isReviewRequired ? '#8b5cf6' : color);
 
         const marker = L.circleMarker(latlng, {
           radius: radius,
           fillColor: fillColor,
-          color: color,
+          color: strokeColor,
           weight: strokeWidth,
           opacity: 1,
-          fillOpacity: 0.85,
+          fillOpacity: 0.9,
         });
 
         // Click handler
@@ -113,26 +117,29 @@ export const GISMap: React.FC<GISMapProps> = ({
           }
         });
 
-        // Popup hover/click info
+        // Rich tooltip
         const popupContent = `
-          <div style="font-family: sans-serif; padding: 4px;">
-            <div class="popup-title">Hotspot: ${props.id}</div>
-            <div class="popup-row">
-              <span class="popup-label">FRP:</span>
-              <span class="popup-val">${props.frp} MW</span>
+          <div style="font-family: system-ui, -apple-system, sans-serif; padding: 4px 6px; min-width: 170px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <span style="font-weight: 700; font-size: 11px; color: #0f172a;">${props.id}</span>
+              <span style="font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 700; background: ${color}20; color: ${color}; border: 1px solid ${color};">
+                ${riskLevel} RISK
+              </span>
             </div>
-            <div class="popup-row">
-              <span class="popup-label">Satellite:</span>
-              <span class="popup-val">${props.satellite}</span>
+            <div style="font-size: 11px; font-weight: 700; color: ${color}; margin-bottom: 4px;">
+              ${classLabel}
             </div>
-            <div class="popup-row">
-              <span class="popup-label">Risk:</span>
-              <span class="popup-val" style="font-weight: 700; color: ${color}">${riskLevel}</span>
+            <div style="font-size: 11px; color: #475569; display: flex; justify-content: space-between; margin-bottom: 2px;">
+              <span>Thermal FRP:</span>
+              <strong style="color: #0f172a;">${props.frp} MW</strong>
             </div>
-            ${props.classification ? `
-            <div class="popup-row">
-              <span class="popup-label">Class:</span>
-              <span class="popup-val">${props.classification.replace(/_/g, ' ')}</span>
+            <div style="font-size: 11px; color: #475569; display: flex; justify-content: space-between;">
+              <span>Sensor:</span>
+              <strong style="color: #0f172a;">${props.satellite || 'VIIRS'}</strong>
+            </div>
+            ${props.industrial_distance_m && props.industrial_distance_m <= 5000 ? `
+            <div style="font-size: 10px; color: #b45309; margin-top: 4px; padding-top: 3px; border-top: 1px solid #e2e8f0; font-weight: 600;">
+              🏭 ${Math.round(props.industrial_distance_m)}m to Industrial Facility
             </div>` : ''}
           </div>
         `;
@@ -231,32 +238,57 @@ export const GISMap: React.FC<GISMapProps> = ({
     <div className="map-container-area">
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
 
-      {/* Floating Layer Controls & Legend */}
-      <div className="map-controls-overlay">
-        <div style={{ fontWeight: 600, borderBottom: '1px solid var(--border-color)', paddingBottom: '4px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <Layers size={14} /> Map Layers ({featureCount} Observations)
+      {/* Floating Layer Controls & Categorized Legend */}
+      <div className="map-controls-overlay" style={{ minWidth: '220px', padding: '10px 12px', fontSize: '11px', backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(6px)', border: '1px solid #cbd5e1', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <div style={{ fontWeight: 700, fontSize: '12px', color: '#0f172a', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Layers size={13} /> Geospatial Vectors
+          </span>
+          <span style={{ fontSize: '10px', color: '#64748b', fontWeight: 600 }}>{featureCount} active</span>
         </div>
-        <label className="map-control-label">
-          <input
-            type="checkbox"
-            checked={showHotspots}
-            onChange={(e) => setShowHotspots(e.target.checked)}
-          />
-          <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#dc2626' }}></span>
-          Thermal Anomalies
-        </label>
-        <label className="map-control-label">
-          <input
-            type="checkbox"
-            checked={showIndustrial}
-            onChange={(e) => setShowIndustrial(e.target.checked)}
-          />
-          <span>🏭</span> Industrial Facilities ({industrialSites.length})
-        </label>
 
-        <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '6px' }}>
-          <button className="btn btn-sm" onClick={handleFitData} title="Fit to current dataset bounds">
-            <Maximize2 size={12} /> Fit Bounds
+        {/* Legend categories */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '9px', height: '9px', borderRadius: '50%', backgroundColor: '#ef4444', border: '1.5px solid #b91c1c', display: 'inline-block' }} />
+            <span style={{ fontWeight: 600, color: '#0f172a' }}>High Risk</span>
+            <span style={{ color: '#64748b', fontSize: '10px' }}>· Industrial Incident</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '9px', height: '9px', borderRadius: '50%', backgroundColor: '#f59e0b', border: '1.5px solid #d97706', display: 'inline-block' }} />
+            <span style={{ fontWeight: 600, color: '#0f172a' }}>Medium Risk</span>
+            <span style={{ color: '#64748b', fontSize: '10px' }}>· Persistent Heat</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '9px', height: '9px', borderRadius: '50%', backgroundColor: '#10b981', border: '1.5px solid #047857', display: 'inline-block' }} />
+            <span style={{ fontWeight: 600, color: '#0f172a' }}>Low Risk</span>
+            <span style={{ color: '#64748b', fontSize: '10px' }}>· Natural Wildfire</span>
+          </div>
+        </div>
+
+        {/* Layer Toggles */}
+        <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <label className="map-control-label" style={{ cursor: 'pointer', margin: 0, padding: '2px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <input
+              type="checkbox"
+              checked={showHotspots}
+              onChange={(e) => setShowHotspots(e.target.checked)}
+            />
+            <span>🔥 Thermal Anomalies</span>
+          </label>
+          <label className="map-control-label" style={{ cursor: 'pointer', margin: 0, padding: '2px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <input
+              type="checkbox"
+              checked={showIndustrial}
+              onChange={(e) => setShowIndustrial(e.target.checked)}
+            />
+            <span>🏭 Industrial Facilities ({industrialSites.length})</span>
+          </label>
+        </div>
+
+        <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px solid #e2e8f0' }}>
+          <button className="btn btn-sm" onClick={handleFitData} style={{ width: '100%', justifyContent: 'center' }} title="Fit to current dataset bounds">
+            <Maximize2 size={12} /> Fit Active Bounds
           </button>
         </div>
       </div>
